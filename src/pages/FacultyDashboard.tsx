@@ -3,12 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { GraduationCap, BookOpen, FileText, Users, Video, MessageSquare, LogOut } from "lucide-react";
+import { GraduationCap, BookOpen, FileText, Video, MessageSquare, LogOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const FacultyDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
+  const [role, setRole] = useState<string>("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -27,12 +28,19 @@ const FacultyDashboard = () => {
         .eq("user_id", session.user.id)
         .single();
 
-      if (profileData?.role !== "faculty") {
-        navigate(`/${profileData?.role}-dashboard`);
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id)
+        .single();
+
+      if (roleData?.role !== "faculty") {
+        navigate(`/${roleData?.role}-dashboard`);
         return;
       }
 
       setProfile(profileData);
+      setRole(roleData?.role || "");
       setLoading(false);
     };
 
@@ -75,7 +83,7 @@ const FacultyDashboard = () => {
           <div className="flex items-center space-x-4">
             <div className="text-right">
               <p className="font-medium">{profile?.full_name}</p>
-              <p className="text-sm text-muted-foreground capitalize">{profile?.role}</p>
+              <p className="text-sm text-muted-foreground capitalize">{role}</p>
             </div>
             <Button variant="outline" size="icon" onClick={handleLogout}>
               <LogOut className="h-4 w-4" />
@@ -103,7 +111,7 @@ const FacultyDashboard = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 View all your courses and create new ones
               </p>
-              <Button className="w-full">Manage Courses</Button>
+              <Button className="w-full" onClick={() => navigate("/subjects")}>Manage Courses</Button>
             </CardContent>
           </Card>
 
@@ -119,25 +127,7 @@ const FacultyDashboard = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 Create assignments and review submissions
               </p>
-              <Button variant="secondary" className="w-full">Manage Assignments</Button>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer border-accent/20">
-            <CardHeader>
-              <div className="bg-accent/10 rounded-full p-3 w-fit mb-2">
-                <Users className="h-6 w-6 text-accent" />
-              </div>
-              <CardTitle>Students</CardTitle>
-              <CardDescription>View enrolled students</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
-                Manage student enrollments and progress
-              </p>
-              <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent hover:text-accent-foreground">
-                View Students
-              </Button>
+              <Button variant="secondary" className="w-full" onClick={() => navigate("/assignments")}>Manage Assignments</Button>
             </CardContent>
           </Card>
 
@@ -153,7 +143,7 @@ const FacultyDashboard = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 Manage video lectures and resources
               </p>
-              <Button variant="outline" className="w-full">Manage Videos</Button>
+              <Button variant="outline" className="w-full" onClick={() => navigate("/videos")}>Manage Videos</Button>
             </CardContent>
           </Card>
 
@@ -169,7 +159,7 @@ const FacultyDashboard = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 Engage with students and answer questions
               </p>
-              <Button variant="secondary" className="w-full">View Forum</Button>
+              <Button variant="secondary" className="w-full" onClick={() => navigate("/forum")}>View Forum</Button>
             </CardContent>
           </Card>
         </div>

@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 const StudentDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
+  const [role, setRole] = useState<string>("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -27,12 +28,19 @@ const StudentDashboard = () => {
         .eq("user_id", session.user.id)
         .single();
 
-      if (profileData?.role !== "student") {
-        navigate(`/${profileData?.role}-dashboard`);
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id)
+        .single();
+
+      if (roleData?.role !== "student") {
+        navigate(`/${roleData?.role}-dashboard`);
         return;
       }
 
       setProfile(profileData);
+      setRole(roleData?.role || "");
       setLoading(false);
     };
 
@@ -75,7 +83,7 @@ const StudentDashboard = () => {
           <div className="flex items-center space-x-4">
             <div className="text-right">
               <p className="font-medium">{profile?.full_name}</p>
-              <p className="text-sm text-muted-foreground capitalize">{profile?.role}</p>
+              <p className="text-sm text-muted-foreground capitalize">{role}</p>
             </div>
             <Button variant="outline" size="icon" onClick={handleLogout}>
               <LogOut className="h-4 w-4" />
@@ -103,7 +111,7 @@ const StudentDashboard = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 Access all your enrolled subjects and browse new ones
               </p>
-              <Button className="w-full">View Subjects</Button>
+              <Button className="w-full" onClick={() => navigate("/subjects")}>View Subjects</Button>
             </CardContent>
           </Card>
 
@@ -119,7 +127,7 @@ const StudentDashboard = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 View pending assignments and submission deadlines
               </p>
-              <Button variant="secondary" className="w-full">View Assignments</Button>
+              <Button variant="secondary" className="w-full" onClick={() => navigate("/assignments")}>View Assignments</Button>
             </CardContent>
           </Card>
 
@@ -135,7 +143,7 @@ const StudentDashboard = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 Access video lectures and study materials
               </p>
-              <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent hover:text-accent-foreground">
+              <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent hover:text-accent-foreground" onClick={() => navigate("/videos")}>
                 Watch Videos
               </Button>
             </CardContent>
@@ -153,7 +161,7 @@ const StudentDashboard = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 Participate in course discussions and Q&A
               </p>
-              <Button variant="outline" className="w-full">Join Discussion</Button>
+              <Button variant="outline" className="w-full" onClick={() => navigate("/forum")}>Join Discussion</Button>
             </CardContent>
           </Card>
 
@@ -169,7 +177,7 @@ const StudentDashboard = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 Store and manage your important documents
               </p>
-              <Button variant="secondary" className="w-full">View Documents</Button>
+              <Button variant="secondary" className="w-full" onClick={() => navigate("/documents")}>View Documents</Button>
             </CardContent>
           </Card>
         </div>
