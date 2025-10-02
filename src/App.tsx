@@ -12,6 +12,11 @@ import Assignments from "./pages/Assignments";
 import Videos from "./pages/Videos";
 import Forum from "./pages/Forum";
 import Documents from "./pages/Documents";
+import CourseDetail from "./pages/CourseDetail";
+import AssignmentSubmit from "./pages/AssignmentSubmit";
+import QuizTake from "./pages/QuizTake";
+import Grades from "./pages/Grades";
+import AITutor from "./pages/AITutor";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +37,11 @@ const App = () => (
           <Route path="/videos" element={<Videos />} />
           <Route path="/forum" element={<Forum />} />
           <Route path="/documents" element={<Documents />} />
+          <Route path="/course/:subjectId" element={<CourseDetail />} />
+          <Route path="/assignment/:assignmentId" element={<AssignmentSubmit />} />
+          <Route path="/quiz/:quizId" element={<QuizTake />} />
+          <Route path="/grades" element={<Grades />} />
+          <Route path="/ai-tutor" element={<AITutor />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

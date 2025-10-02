@@ -3,13 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { GraduationCap, BookOpen, FileText, Video, MessageSquare, FolderOpen, LogOut } from "lucide-react";
+import { GraduationCap, BookOpen, FileText, Video, MessageSquare, FolderOpen, LogOut, Award, Bot } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const StudentDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   const [role, setRole] = useState<string>("");
+  const [enrolledSubjects, setEnrolledSubjects] = useState<any[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -41,6 +42,16 @@ const StudentDashboard = () => {
 
       setProfile(profileData);
       setRole(roleData?.role || "");
+
+      if (profileData) {
+        const { data: enrollments } = await supabase
+          .from("enrollments")
+          .select("*, subjects(*, profiles!subjects_faculty_id_fkey(full_name))")
+          .eq("student_id", profileData.id);
+
+        setEnrolledSubjects(enrollments?.map(e => e.subjects) || []);
+      }
+
       setLoading(false);
     };
 
@@ -98,6 +109,37 @@ const StudentDashboard = () => {
           <p className="text-muted-foreground">Access your courses, assignments, and resources</p>
         </div>
 
+        {enrolledSubjects.length > 0 && (
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold mb-4">My Courses</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {enrolledSubjects.map((subject) => (
+                <Card 
+                  key={subject.id} 
+                  className="hover:shadow-lg transition-all cursor-pointer border-primary/20"
+                  onClick={() => navigate(`/course/${subject.id}`)}
+                >
+                  <CardHeader>
+                    <div className="bg-primary/10 rounded-full p-3 w-fit mb-2">
+                      <BookOpen className="h-6 w-6 text-primary" />
+                    </div>
+                    <CardTitle>{subject.title}</CardTitle>
+                    <CardDescription>
+                      By {subject.profiles?.full_name || "Unknown"}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      {subject.description || "No description"}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <h3 className="text-xl font-semibold mb-4">Quick Access</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer border-primary/20">
             <CardHeader>
@@ -112,6 +154,24 @@ const StudentDashboard = () => {
                 Access all your enrolled subjects and browse new ones
               </p>
               <Button className="w-full" onClick={() => navigate("/subjects")}>View Subjects</Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer border-accent/20">
+            <CardHeader>
+              <div className="bg-accent/10 rounded-full p-3 w-fit mb-2">
+                <Award className="h-6 w-6 text-accent" />
+              </div>
+              <CardTitle>My Grades</CardTitle>
+              <CardDescription>Track your performance</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                View grades from assignments and quizzes
+              </p>
+              <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent hover:text-accent-foreground" onClick={() => navigate("/grades")}>
+                View Grades
+              </Button>
             </CardContent>
           </Card>
 
@@ -178,6 +238,22 @@ const StudentDashboard = () => {
                 Store and manage your important documents
               </p>
               <Button variant="secondary" className="w-full" onClick={() => navigate("/documents")}>View Documents</Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer bg-gradient-to-br from-primary/10 to-accent/10 border-primary/30">
+            <CardHeader>
+              <div className="bg-primary/20 rounded-full p-3 w-fit mb-2">
+                <Bot className="h-6 w-6 text-primary" />
+              </div>
+              <CardTitle>AI Tutor</CardTitle>
+              <CardDescription>Exam prep & career guidance</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Get help with exams and career questions
+              </p>
+              <Button className="w-full" onClick={() => navigate("/ai-tutor")}>Chat with AI</Button>
             </CardContent>
           </Card>
         </div>
