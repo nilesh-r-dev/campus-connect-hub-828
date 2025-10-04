@@ -52,6 +52,47 @@ export type Database = {
           },
         ]
       }
+      career_news: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          id: string
+          posted_by: string | null
+          source: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string
+          id?: string
+          posted_by?: string | null
+          source?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          posted_by?: string | null
+          source?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "career_news_posted_by_fkey"
+            columns: ["posted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enrollments: {
         Row: {
           enrolled_at: string

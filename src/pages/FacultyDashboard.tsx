@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { GraduationCap, BookOpen, FileText, Video, MessageSquare, LogOut } from "lucide-react";
+import { GraduationCap, BookOpen, FileText, Video, MessageSquare, LogOut, Briefcase } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const FacultyDashboard = () => {
@@ -160,6 +160,22 @@ const FacultyDashboard = () => {
                 Engage with students and answer questions
               </p>
               <Button variant="secondary" className="w-full" onClick={() => navigate("/forum")}>View Forum</Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer bg-gradient-to-br from-accent/10 to-primary/10 border-accent/30">
+            <CardHeader>
+              <div className="bg-accent/20 rounded-full p-3 w-fit mb-2">
+                <Briefcase className="h-6 w-6 text-accent" />
+              </div>
+              <CardTitle>Career News</CardTitle>
+              <CardDescription>Post opportunities</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Share career and internship updates
+              </p>
+              <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent hover:text-accent-foreground" onClick={() => navigate("/career-news")}>Manage News</Button>
             </CardContent>
           </Card>
         </div>

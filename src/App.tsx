@@ -17,6 +17,7 @@ import AssignmentSubmit from "./pages/AssignmentSubmit";
 import QuizTake from "./pages/QuizTake";
 import Grades from "./pages/Grades";
 import AITutor from "./pages/AITutor";
+import CareerNews from "./pages/CareerNews";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/quiz/:quizId" element={<QuizTake />} />
           <Route path="/grades" element={<Grades />} />
           <Route path="/ai-tutor" element={<AITutor />} />
+          <Route path="/career-news" element={<CareerNews />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
