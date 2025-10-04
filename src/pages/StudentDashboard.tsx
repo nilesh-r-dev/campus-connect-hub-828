@@ -80,10 +80,10 @@ const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-      <header className="border-b bg-card shadow-sm">
+      <header className="border-b bg-card shadow-sm sticky top-0 z-50 backdrop-blur-sm animate-fade-in">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-3">
-            <div className="bg-primary rounded-full p-2">
+            <div className="bg-primary rounded-full p-2 hover:scale-110 transition-transform duration-300">
               <GraduationCap className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
@@ -96,7 +96,7 @@ const StudentDashboard = () => {
               <p className="font-medium">{profile?.full_name}</p>
               <p className="text-sm text-muted-foreground capitalize">{role}</p>
             </div>
-            <Button variant="outline" size="icon" onClick={handleLogout}>
+            <Button variant="outline" size="icon" onClick={handleLogout} className="hover:scale-110 transition-transform duration-300">
               <LogOut className="h-4 w-4" />
             </Button>
           </div>
@@ -104,20 +104,21 @@ const StudentDashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2">Welcome back, {profile?.full_name}!</h2>
+        <div className="mb-8 animate-fade-in">
+          <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Welcome back, {profile?.full_name}!</h2>
           <p className="text-muted-foreground">Access your courses, assignments, and resources</p>
         </div>
 
         {enrolledSubjects.length > 0 && (
-          <div className="mb-8">
+          <div className="mb-8 animate-fade-in" style={{ animationDelay: "0.1s" }}>
             <h3 className="text-xl font-semibold mb-4">My Courses</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {enrolledSubjects.map((subject) => (
+              {enrolledSubjects.map((subject, index) => (
                 <Card 
                   key={subject.id} 
-                  className="hover:shadow-lg transition-all cursor-pointer border-primary/20"
+                  className="hover:shadow-xl hover:-translate-y-2 transition-all duration-300 cursor-pointer border-primary/20 animate-fade-in"
                   onClick={() => navigate(`/course/${subject.id}`)}
+                  style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <CardHeader>
                     <div className="bg-primary/10 rounded-full p-3 w-fit mb-2">
@@ -139,9 +140,9 @@ const StudentDashboard = () => {
           </div>
         )}
 
-        <h3 className="text-xl font-semibold mb-4">Quick Access</h3>
+        <h3 className="text-xl font-semibold mb-4 animate-fade-in" style={{ animationDelay: "0.2s" }}>Quick Access</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer border-primary/20">
+          <Card className="hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer border-primary/20 animate-fade-in" style={{ animationDelay: "0.3s" }}>
             <CardHeader>
               <div className="bg-primary/10 rounded-full p-3 w-fit mb-2">
                 <BookOpen className="h-6 w-6 text-primary" />
@@ -157,7 +158,7 @@ const StudentDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer border-accent/20">
+          <Card className="hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer border-accent/20 animate-fade-in" style={{ animationDelay: "0.4s" }}>
             <CardHeader>
               <div className="bg-accent/10 rounded-full p-3 w-fit mb-2">
                 <Award className="h-6 w-6 text-accent" />
@@ -175,7 +176,7 @@ const StudentDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer border-secondary/20">
+          <Card className="hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer border-secondary/20 animate-fade-in" style={{ animationDelay: "0.5s" }}>
             <CardHeader>
               <div className="bg-secondary/10 rounded-full p-3 w-fit mb-2">
                 <FileText className="h-6 w-6 text-secondary" />
@@ -191,7 +192,7 @@ const StudentDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer border-accent/20">
+          <Card className="hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer border-accent/20 animate-fade-in" style={{ animationDelay: "0.6s" }}>
             <CardHeader>
               <div className="bg-accent/10 rounded-full p-3 w-fit mb-2">
                 <Video className="h-6 w-6 text-accent" />
@@ -209,7 +210,7 @@ const StudentDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer border-primary/20">
+          <Card className="hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer border-primary/20 animate-fade-in" style={{ animationDelay: "0.7s" }}>
             <CardHeader>
               <div className="bg-primary/10 rounded-full p-3 w-fit mb-2">
                 <MessageSquare className="h-6 w-6 text-primary" />
@@ -225,7 +226,7 @@ const StudentDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer border-secondary/20">
+          <Card className="hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer border-secondary/20 animate-fade-in" style={{ animationDelay: "0.8s" }}>
             <CardHeader>
               <div className="bg-secondary/10 rounded-full p-3 w-fit mb-2">
                 <FolderOpen className="h-6 w-6 text-secondary" />
@@ -241,7 +242,7 @@ const StudentDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer bg-gradient-to-br from-primary/10 to-accent/10 border-primary/30">
+          <Card className="hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer bg-gradient-to-br from-primary/10 to-accent/10 border-primary/30 animate-fade-in" style={{ animationDelay: "0.9s" }}>
             <CardHeader>
               <div className="bg-primary/20 rounded-full p-3 w-fit mb-2">
                 <Bot className="h-6 w-6 text-primary" />
@@ -257,7 +258,7 @@ const StudentDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer bg-gradient-to-br from-accent/10 to-secondary/10 border-accent/30">
+          <Card className="hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer bg-gradient-to-br from-accent/10 to-secondary/10 border-accent/30 animate-fade-in" style={{ animationDelay: "1s" }}>
             <CardHeader>
               <div className="bg-accent/20 rounded-full p-3 w-fit mb-2">
                 <Briefcase className="h-6 w-6 text-accent" />

@@ -27,18 +27,18 @@ const Index = () => {
 
       <main>
         <section className="container mx-auto px-4 py-20 text-center">
-          <div className="max-w-3xl mx-auto space-y-6">
-            <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+          <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">
+            <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent animate-scale-in">
               Welcome to Campus Connect
             </h1>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-xl text-muted-foreground animate-fade-in" style={{ animationDelay: "0.1s" }}>
               A professional learning management platform connecting students and faculty
             </p>
-            <div className="flex justify-center gap-4 pt-4">
-              <Button size="lg" onClick={() => navigate("/auth")} className="shadow-lg">
+            <div className="flex justify-center gap-4 pt-4 animate-fade-in" style={{ animationDelay: "0.2s" }}>
+              <Button size="lg" onClick={() => navigate("/auth")} className="shadow-lg hover:scale-105 transition-transform duration-300">
                 Start Learning
               </Button>
-              <Button size="lg" variant="outline" onClick={() => navigate("/auth")}>
+              <Button size="lg" variant="outline" onClick={() => navigate("/auth")} className="hover:scale-105 transition-transform duration-300">
                 I'm a Faculty
               </Button>
             </div>
@@ -46,11 +46,11 @@ const Index = () => {
         </section>
 
         <section className="container mx-auto px-4 py-16">
-          <h2 className="text-3xl font-bold text-center mb-12">Platform Features</h2>
+          <h2 className="text-3xl font-bold text-center mb-12 animate-fade-in">Platform Features</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className="border-primary/20">
+            <Card className="border-primary/20 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 animate-fade-in" style={{ animationDelay: "0.1s" }}>
               <CardHeader>
-                <div className="bg-primary/10 rounded-full p-3 w-fit mb-2">
+                <div className="bg-primary/10 rounded-full p-3 w-fit mb-2 group-hover:scale-110 transition-transform duration-300">
                   <BookOpen className="h-6 w-6 text-primary" />
                 </div>
                 <CardTitle>Course Management</CardTitle>
@@ -63,9 +63,9 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="border-secondary/20">
+            <Card className="border-secondary/20 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 animate-fade-in" style={{ animationDelay: "0.2s" }}>
               <CardHeader>
-                <div className="bg-secondary/10 rounded-full p-3 w-fit mb-2">
+                <div className="bg-secondary/10 rounded-full p-3 w-fit mb-2 group-hover:scale-110 transition-transform duration-300">
                   <Users className="h-6 w-6 text-secondary" />
                 </div>
                 <CardTitle>Student Portal</CardTitle>
@@ -78,9 +78,9 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="border-accent/20">
+            <Card className="border-accent/20 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 animate-fade-in" style={{ animationDelay: "0.3s" }}>
               <CardHeader>
-                <div className="bg-accent/10 rounded-full p-3 w-fit mb-2">
+                <div className="bg-accent/10 rounded-full p-3 w-fit mb-2 group-hover:scale-110 transition-transform duration-300">
                   <Video className="h-6 w-6 text-accent" />
                 </div>
                 <CardTitle>Video Lectures</CardTitle>
@@ -93,9 +93,9 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="border-primary/20">
+            <Card className="border-primary/20 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 animate-fade-in" style={{ animationDelay: "0.4s" }}>
               <CardHeader>
-                <div className="bg-primary/10 rounded-full p-3 w-fit mb-2">
+                <div className="bg-primary/10 rounded-full p-3 w-fit mb-2 group-hover:scale-110 transition-transform duration-300">
                   <Shield className="h-6 w-6 text-primary" />
                 </div>
                 <CardTitle>Secure Storage</CardTitle>
@@ -108,9 +108,9 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="border-secondary/20">
+            <Card className="border-secondary/20 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 animate-fade-in" style={{ animationDelay: "0.5s" }}>
               <CardHeader>
-                <div className="bg-secondary/10 rounded-full p-3 w-fit mb-2">
+                <div className="bg-secondary/10 rounded-full p-3 w-fit mb-2 group-hover:scale-110 transition-transform duration-300">
                   <Zap className="h-6 w-6 text-secondary" />
                 </div>
                 <CardTitle>Real-time Grading</CardTitle>
@@ -123,9 +123,9 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="border-accent/20">
+            <Card className="border-accent/20 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 animate-fade-in" style={{ animationDelay: "0.6s" }}>
               <CardHeader>
-                <div className="bg-accent/10 rounded-full p-3 w-fit mb-2">
+                <div className="bg-accent/10 rounded-full p-3 w-fit mb-2 group-hover:scale-110 transition-transform duration-300">
                   <GraduationCap className="h-6 w-6 text-accent" />
                 </div>
                 <CardTitle>Discussion Forums</CardTitle>
@@ -141,12 +141,12 @@ const Index = () => {
         </section>
 
         <section className="container mx-auto px-4 py-16 text-center">
-          <div className="max-w-2xl mx-auto space-y-6">
+          <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
             <h2 className="text-3xl font-bold">Ready to Get Started?</h2>
             <p className="text-muted-foreground">
               Join Campus Connect today and experience a modern learning platform
             </p>
-            <Button size="lg" onClick={() => navigate("/auth")} className="shadow-lg">
+            <Button size="lg" onClick={() => navigate("/auth")} className="shadow-lg hover:scale-110 transition-transform duration-300 animate-pulse">
               Create Your Account
             </Button>
           </div>

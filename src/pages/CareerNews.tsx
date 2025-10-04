@@ -171,16 +171,16 @@ const CareerNews = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-      <header className="border-b bg-card shadow-sm">
+      <header className="border-b bg-card shadow-sm animate-fade-in">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Button variant="ghost" onClick={() => navigate(role === "faculty" ? "/faculty-dashboard" : "/student-dashboard")}>
+          <Button variant="ghost" onClick={() => navigate(role === "faculty" ? "/faculty-dashboard" : "/student-dashboard")} className="hover:scale-105 transition-transform duration-300">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Dashboard
           </Button>
           {role === "faculty" && (
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button>
+                <Button className="hover:scale-105 transition-transform duration-300">
                   <Plus className="mr-2 h-4 w-4" />
                   Post News
                 </Button>
@@ -249,38 +249,48 @@ const CareerNews = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Career & Internship News</h1>
+        <div className="mb-8 animate-fade-in">
+          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Career & Internship News</h1>
           <p className="text-muted-foreground">
             Stay updated with the latest career opportunities, internships, and skill development resources
           </p>
         </div>
 
         {news.length === 0 ? (
-          <Card>
+          <Card className="animate-fade-in">
             <CardContent className="py-12 text-center">
-              <Briefcase className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <Briefcase className="h-12 w-12 mx-auto mb-4 text-muted-foreground animate-pulse" />
               <p className="text-muted-foreground">No career news available yet</p>
             </CardContent>
           </Card>
         ) : (
           <div className="grid gap-6">
-            {news.map((item) => {
+            {news.map((item, index) => {
               const Icon = categoryIcons[item.category];
               return (
-                <Card key={item.id} className="hover:shadow-lg transition-all">
+                <Card 
+                  key={item.id} 
+                  className="hover:shadow-xl hover:-translate-y-1 transition-all duration-300 animate-fade-in border-l-4"
+                  style={{ 
+                    animationDelay: `${index * 0.1}s`,
+                    borderLeftColor: item.category === 'career' ? 'hsl(var(--primary))' :
+                                     item.category === 'internship' ? 'hsl(var(--accent))' :
+                                     item.category === 'placement' ? 'hsl(var(--secondary))' :
+                                     'hsl(var(--primary))'
+                  }}
+                >
                   <CardHeader>
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <div className={`rounded-full p-2 ${categoryColors[item.category]}`}>
+                          <div className={`rounded-full p-2 ${categoryColors[item.category]} transition-transform hover:scale-110 duration-300`}>
                             <Icon className="h-5 w-5" />
                           </div>
-                          <Badge variant="outline" className={categoryColors[item.category]}>
+                          <Badge variant="outline" className={`${categoryColors[item.category]} animate-fade-in`}>
                             {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
                           </Badge>
                         </div>
-                        <CardTitle className="text-2xl mb-2">{item.title}</CardTitle>
+                        <CardTitle className="text-2xl mb-2 hover:text-primary transition-colors duration-300">{item.title}</CardTitle>
                         <CardDescription className="flex items-center gap-2">
                           <span>Posted by {item.profiles?.full_name}</span>
                           <span>•</span>
@@ -288,7 +298,7 @@ const CareerNews = () => {
                           {item.source && (
                             <>
                               <span>•</span>
-                              <span className="text-primary">{item.source}</span>
+                              <span className="text-primary font-medium">{item.source}</span>
                             </>
                           )}
                         </CardDescription>
@@ -296,7 +306,7 @@ const CareerNews = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground whitespace-pre-wrap">{item.content}</p>
+                    <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">{item.content}</p>
                   </CardContent>
                 </Card>
               );
