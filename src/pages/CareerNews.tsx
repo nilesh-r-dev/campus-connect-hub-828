@@ -9,9 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Briefcase, GraduationCap, Target, TrendingUp, Plus } from "lucide-react";
+import { ArrowLeft, Briefcase, GraduationCap, Target, TrendingUp, Plus, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { ChatbotWidget } from "@/components/ChatbotWidget";
 
 interface CareerNewsItem {
   id: string;
@@ -32,6 +33,7 @@ const CareerNews = () => {
   const [profile, setProfile] = useState<any>(null);
   const [role, setRole] = useState<string>("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [recommendations, setRecommendations] = useState<CareerNewsItem[]>([]);
   const [formData, setFormData] = useState({
     title: "",
     content: "",
@@ -53,6 +55,19 @@ const CareerNews = () => {
     internship: "bg-accent/10 text-accent border-accent/20",
     placement: "bg-secondary/10 text-secondary border-secondary/20",
     skill: "bg-primary/20 text-primary border-primary/30",
+  };
+
+  const fetchRecommendations = async () => {
+    try {
+      const { data } = await supabase.functions.invoke('news-recommendations', {
+        body: { userInterests: 'technology, career development, internships' }
+      });
+      if (data?.recommendations) {
+        setRecommendations(data.recommendations);
+      }
+    } catch (error) {
+      console.error('Failed to fetch recommendations:', error);
+    }
   };
 
   useEffect(() => {
@@ -94,6 +109,7 @@ const CareerNews = () => {
     };
 
     fetchNews();
+    fetchRecommendations();
 
     // Subscribe to real-time updates
     const channel = supabase
@@ -108,10 +124,12 @@ const CareerNews = () => {
         (payload) => {
           if (payload.eventType === "INSERT") {
             fetchNews();
+            fetchRecommendations();
           } else if (payload.eventType === "DELETE") {
             setNews((prev) => prev.filter((item) => item.id !== payload.old.id));
           } else if (payload.eventType === "UPDATE") {
             fetchNews();
+            fetchRecommendations();
           }
         }
       )
@@ -256,6 +274,50 @@ const CareerNews = () => {
           </p>
         </div>
 
+        {recommendations.length > 0 && (
+          <div className="mb-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-primary animate-pulse" />
+                  Recommended for You
+                </CardTitle>
+                <CardDescription>AI-curated news based on your interests</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4">
+                  {recommendations.slice(0, 3).map((item, idx) => {
+                    const Icon = categoryIcons[item.category];
+                    return (
+                      <Card key={item.id} className="hover:shadow-lg transition-all hover:-translate-y-1" style={{ animationDelay: `${idx * 0.1}s` }}>
+                        <CardHeader>
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                              <div className={`rounded-full p-2 ${categoryColors[item.category]}`}>
+                                <Icon className="h-4 w-4" />
+                              </div>
+                              <div>
+                                <CardTitle className="text-lg">{item.title}</CardTitle>
+                                <Badge variant="secondary" className="mt-1">{item.category}</Badge>
+                              </div>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-muted-foreground mb-2 line-clamp-2">{item.content}</p>
+                          {item.source && (
+                            <p className="text-sm text-muted-foreground">Source: {item.source}</p>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {news.length === 0 ? (
           <Card className="animate-fade-in">
             <CardContent className="py-12 text-center">
@@ -314,6 +376,8 @@ const CareerNews = () => {
           </div>
         )}
       </main>
+
+      <ChatbotWidget />
     </div>
   );
 };

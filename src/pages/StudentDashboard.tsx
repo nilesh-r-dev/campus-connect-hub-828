@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { GraduationCap, BookOpen, FileText, Video, MessageSquare, FolderOpen, LogOut, Award, Bot, Briefcase } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ChatbotWidget } from "@/components/ChatbotWidget";
 
 const StudentDashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -275,6 +276,8 @@ const StudentDashboard = () => {
           </Card>
         </div>
       </main>
+
+      <ChatbotWidget />
     </div>
   );
 };
