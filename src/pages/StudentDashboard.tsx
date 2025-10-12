@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { GraduationCap, BookOpen, FileText, Video, MessageSquare, FolderOpen, LogOut, Award, Bot, Briefcase } from "lucide-react";
+import { GraduationCap, BookOpen, FileText, Video, MessageSquare, FolderOpen, LogOut, Award, Bot, Briefcase, FileSearch } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ChatbotWidget } from "@/components/ChatbotWidget";
 
@@ -272,6 +272,22 @@ const StudentDashboard = () => {
                 Get real-time career and internship updates
               </p>
               <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent hover:text-accent-foreground" onClick={() => navigate("/career-news")}>View Updates</Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer bg-gradient-to-br from-secondary/10 to-primary/10 border-secondary/30 animate-fade-in" style={{ animationDelay: "1.1s" }}>
+            <CardHeader>
+              <div className="bg-secondary/20 rounded-full p-3 w-fit mb-2">
+                <FileSearch className="h-6 w-6 text-secondary" />
+              </div>
+              <CardTitle>Question Paper Analysis</CardTitle>
+              <CardDescription>AI-powered exam insights</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Upload papers and get important questions
+              </p>
+              <Button variant="outline" className="w-full border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground" onClick={() => navigate("/question-paper-analysis")}>Analyze Papers</Button>
             </CardContent>
           </Card>
         </div>
