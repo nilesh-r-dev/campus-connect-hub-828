@@ -93,6 +93,41 @@ export type Database = {
           },
         ]
       }
+      certificates: {
+        Row: {
+          certificate_url: string | null
+          id: string
+          issued_at: string
+          issued_by: string
+          student_id: string
+          subject_id: string
+        }
+        Insert: {
+          certificate_url?: string | null
+          id?: string
+          issued_at?: string
+          issued_by: string
+          student_id: string
+          subject_id: string
+        }
+        Update: {
+          certificate_url?: string | null
+          id?: string
+          issued_at?: string
+          issued_by?: string
+          student_id?: string
+          subject_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificates_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enrollments: {
         Row: {
           enrolled_at: string
@@ -454,6 +489,35 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      video_completions: {
+        Row: {
+          completed_at: string
+          id: string
+          student_id: string
+          video_id: string
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          student_id: string
+          video_id: string
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          student_id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_completions_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       videos: {
         Row: {

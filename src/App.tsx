@@ -19,6 +19,10 @@ import Grades from "./pages/Grades";
 import AITutor from "./pages/AITutor";
 import CareerNews from "./pages/CareerNews";
 import QuestionPaperAnalysis from "./pages/QuestionPaperAnalysis";
+import FacultyVideos from "./pages/FacultyVideos";
+import FacultyQuizzes from "./pages/FacultyQuizzes";
+import FacultyAssignments from "./pages/FacultyAssignments";
+import FacultyCertificates from "./pages/FacultyCertificates";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,6 +50,10 @@ const App = () => (
           <Route path="/ai-tutor" element={<AITutor />} />
           <Route path="/career-news" element={<CareerNews />} />
           <Route path="/question-paper-analysis" element={<QuestionPaperAnalysis />} />
+          <Route path="/faculty/videos" element={<FacultyVideos />} />
+          <Route path="/faculty/quizzes" element={<FacultyQuizzes />} />
+          <Route path="/faculty/assignments" element={<FacultyAssignments />} />
+          <Route path="/faculty/certificates" element={<FacultyCertificates />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

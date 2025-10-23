@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { GraduationCap, BookOpen, FileText, Video, MessageSquare, LogOut, Briefcase } from "lucide-react";
+import { GraduationCap, BookOpen, FileText, Video, MessageSquare, LogOut, Briefcase, ClipboardList, Award } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const FacultyDashboard = () => {
@@ -118,32 +118,64 @@ const FacultyDashboard = () => {
           <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer border-secondary/20">
             <CardHeader>
               <div className="bg-secondary/10 rounded-full p-3 w-fit mb-2">
-                <FileText className="h-6 w-6 text-secondary" />
+                <Video className="h-6 w-6 text-secondary" />
               </div>
-              <CardTitle>Assignments</CardTitle>
-              <CardDescription>Create and grade work</CardDescription>
+              <CardTitle>Video Lectures</CardTitle>
+              <CardDescription>Upload and manage videos</CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-4">
-                Create assignments and review submissions
+                Manage video lectures and resources
               </p>
-              <Button variant="secondary" className="w-full" onClick={() => navigate("/assignments")}>Manage Assignments</Button>
+              <Button variant="secondary" className="w-full" onClick={() => navigate("/faculty/videos")}>Manage Videos</Button>
             </CardContent>
           </Card>
 
           <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer border-primary/20">
             <CardHeader>
               <div className="bg-primary/10 rounded-full p-3 w-fit mb-2">
-                <Video className="h-6 w-6 text-primary" />
+                <ClipboardList className="h-6 w-6 text-primary" />
               </div>
-              <CardTitle>Video Lectures</CardTitle>
-              <CardDescription>Upload course content</CardDescription>
+              <CardTitle>Quizzes</CardTitle>
+              <CardDescription>Create subject quizzes</CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-4">
-                Manage video lectures and resources
+                Create and manage quizzes for students
               </p>
-              <Button variant="outline" className="w-full" onClick={() => navigate("/videos")}>Manage Videos</Button>
+              <Button variant="outline" className="w-full" onClick={() => navigate("/faculty/quizzes")}>Manage Quizzes</Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer border-secondary/20">
+            <CardHeader>
+              <div className="bg-secondary/10 rounded-full p-3 w-fit mb-2">
+                <FileText className="h-6 w-6 text-secondary" />
+              </div>
+              <CardTitle>Assignments</CardTitle>
+              <CardDescription>Upload assignment files</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Create assignments with question files
+              </p>
+              <Button variant="secondary" className="w-full" onClick={() => navigate("/faculty/assignments")}>Manage Assignments</Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer border-primary/20">
+            <CardHeader>
+              <div className="bg-primary/10 rounded-full p-3 w-fit mb-2">
+                <Award className="h-6 w-6 text-primary" />
+              </div>
+              <CardTitle>Certificates</CardTitle>
+              <CardDescription>Issue completion certificates</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Award certificates for completed playlists
+              </p>
+              <Button variant="outline" className="w-full" onClick={() => navigate("/faculty/certificates")}>Issue Certificates</Button>
             </CardContent>
           </Card>
 
