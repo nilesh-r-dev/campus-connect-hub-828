@@ -23,14 +23,14 @@ const Auth = () => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        const { data: profile } = await supabase
-          .from("profiles")
+        const { data: userRole } = await supabase
+          .from("user_roles")
           .select("role")
           .eq("user_id", session.user.id)
           .single();
         
-        if (profile) {
-          navigate(`/${profile.role}-dashboard`);
+        if (userRole) {
+          navigate(`/${userRole.role}-dashboard`);
         }
       }
     };
@@ -50,8 +50,8 @@ const Auth = () => {
 
         if (error) throw error;
 
-        const { data: profile } = await supabase
-          .from("profiles")
+        const { data: userRole } = await supabase
+          .from("user_roles")
           .select("role")
           .eq("user_id", data.user.id)
           .single();
@@ -61,7 +61,7 @@ const Auth = () => {
           description: "Successfully logged in.",
         });
 
-        navigate(`/${profile?.role}-dashboard`);
+        navigate(`/${userRole?.role}-dashboard`);
       } else {
         const { data, error } = await supabase.auth.signUp({
           email,

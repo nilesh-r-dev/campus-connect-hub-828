@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, FileText, Plus, Upload, Download } from "lucide-react";
 import { toast } from "sonner";
+import { validateFile } from "@/lib/fileValidation";
 
 const FacultyAssignments = () => {
   const [loading, setLoading] = useState(true);
@@ -70,12 +71,21 @@ const FacultyAssignments = () => {
       return;
     }
 
+    // Validate file if provided
+    if (file) {
+      const validation = validateFile(file);
+      if (!validation.valid) {
+        toast.error(validation.error);
+        return;
+      }
+    }
+
     setUploading(true);
     let fileUrl = null;
 
     if (file) {
       const fileName = `${Date.now()}-${file.name}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from("assignment-files")
         .upload(fileName, file);
 
@@ -85,11 +95,18 @@ const FacultyAssignments = () => {
         return;
       }
 
-      const { data: { publicUrl } } = supabase.storage
+      // Use signed URL instead of public URL
+      const { data: signedUrlData, error: urlError } = await supabase.storage
         .from("assignment-files")
-        .getPublicUrl(fileName);
+        .createSignedUrl(fileName, 31536000); // 1 year expiry
+
+      if (urlError) {
+        toast.error("Failed to generate file URL");
+        setUploading(false);
+        return;
+      }
       
-      fileUrl = publicUrl;
+      fileUrl = signedUrlData.signedUrl;
     }
 
     const { error } = await supabase

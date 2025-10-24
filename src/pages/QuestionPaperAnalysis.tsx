@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, FileText, Sparkles, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { validateFile } from "@/lib/fileValidation";
 
 const QuestionPaperAnalysis = () => {
   const [content, setContent] = useState("");
@@ -17,6 +18,27 @@ const QuestionPaperAnalysis = () => {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const uploadedFile = e.target.files?.[0];
     if (uploadedFile) {
+      // Validate file
+      const validation = validateFile(uploadedFile);
+      if (!validation.valid) {
+        toast({
+          title: "Invalid file",
+          description: validation.error,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Check content size limit (1MB for text analysis)
+      if (uploadedFile.size > 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Please upload files smaller than 1MB for analysis",
+          variant: "destructive",
+        });
+        return;
+      }
+
       setFile(uploadedFile);
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -41,10 +63,25 @@ const QuestionPaperAnalysis = () => {
       return;
     }
 
+    // Validate content length (max 50k characters)
+    if (content.length > 50000) {
+      toast({
+        title: "Content too large",
+        description: "Please limit content to 50,000 characters",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsAnalyzing(true);
     setAnalysis("");
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error("Authentication required");
+      }
+
       const { data, error } = await supabase.functions.invoke('analyze-question-paper', {
         body: { content }
       });

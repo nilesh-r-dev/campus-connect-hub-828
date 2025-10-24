@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, FolderOpen, FileText, Upload } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { validateFile } from "@/lib/fileValidation";
 
 const Documents = () => {
   const [loading, setLoading] = useState(true);
@@ -57,6 +58,13 @@ const Documents = () => {
       return;
     }
 
+    // Validate file
+    const validation = validateFile(file);
+    if (!validation.valid) {
+      toast.error(validation.error);
+      return;
+    }
+
     setUploading(true);
     try {
       const fileExt = file.name.split('.').pop();
@@ -68,16 +76,19 @@ const Documents = () => {
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
+      // Use signed URL instead of public URL
+      const { data: signedUrlData, error: urlError } = await supabase.storage
         .from('student-documents')
-        .getPublicUrl(fileName);
+        .createSignedUrl(fileName, 31536000); // 1 year expiry
+
+      if (urlError) throw urlError;
 
       const { error: dbError } = await supabase
         .from('student_documents')
         .insert({
           student_id: profileId,
           title,
-          file_url: publicUrl,
+          file_url: signedUrlData.signedUrl,
           file_type: file.type || 'application/octet-stream'
         });
 

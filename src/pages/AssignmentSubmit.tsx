@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, Upload, FileText, Calendar, Award } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { validateFile } from "@/lib/fileValidation";
 
 const AssignmentSubmit = () => {
   const { assignmentId } = useParams();
@@ -67,6 +68,15 @@ const AssignmentSubmit = () => {
       return;
     }
 
+    // Validate file
+    if (file) {
+      const validation = validateFile(file);
+      if (!validation.valid) {
+        toast({ title: "Error", description: validation.error, variant: "destructive" });
+        return;
+      }
+    }
+
     setUploading(true);
 
     try {
@@ -76,17 +86,20 @@ const AssignmentSubmit = () => {
         const fileExt = file.name.split(".").pop();
         const fileName = `${profileId}/${Date.now()}.${fileExt}`;
         
-        const { error: uploadError, data } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from("assignment-files")
           .upload(fileName, file);
 
         if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
+        // Use signed URL instead of public URL
+        const { data: signedUrlData, error: urlError } = await supabase.storage
           .from("assignment-files")
-          .getPublicUrl(fileName);
+          .createSignedUrl(fileName, 31536000); // 1 year expiry
 
-        fileUrl = publicUrl;
+        if (urlError) throw urlError;
+
+        fileUrl = signedUrlData.signedUrl;
       }
 
       const { error } = await supabase
