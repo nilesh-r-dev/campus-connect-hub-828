@@ -7,7 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import { GraduationCap } from "lucide-react";
+import { GraduationCap, Search } from "lucide-react";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -15,6 +17,10 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState<"student" | "faculty">("student");
+  const [collegeId, setCollegeId] = useState("");
+  const [colleges, setColleges] = useState<Array<{ id: string; name: string; location: string; state: string }>>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -35,6 +41,15 @@ const Auth = () => {
       }
     };
     checkUser();
+
+    const fetchColleges = async () => {
+      const { data } = await supabase
+        .from("colleges")
+        .select("id, name, location, state")
+        .order("name");
+      if (data) setColleges(data);
+    };
+    fetchColleges();
   }, [navigate]);
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -63,6 +78,16 @@ const Auth = () => {
 
         navigate(`/${userRole?.role}-dashboard`);
       } else {
+        if (!collegeId) {
+          toast({
+            title: "College Required",
+            description: "Please select your college.",
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
+
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -71,6 +96,7 @@ const Auth = () => {
             data: {
               full_name: fullName,
               role: role,
+              college_id: collegeId,
             },
           },
         });
@@ -123,6 +149,55 @@ const Auth = () => {
                     onChange={(e) => setFullName(e.target.value)}
                     required={!isLogin}
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label>Select Your College</Label>
+                  <Popover open={open} onOpenChange={setOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={open}
+                        className="w-full justify-between"
+                      >
+                        {collegeId
+                          ? colleges.find((college) => college.id === collegeId)?.name
+                          : "Search and select your college..."}
+                        <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[400px] p-0" align="start">
+                      <Command>
+                        <CommandInput 
+                          placeholder="Search colleges..." 
+                          value={searchQuery}
+                          onValueChange={setSearchQuery}
+                        />
+                        <CommandList>
+                          <CommandEmpty>No college found.</CommandEmpty>
+                          <CommandGroup>
+                            {colleges.map((college) => (
+                              <CommandItem
+                                key={college.id}
+                                value={`${college.name} ${college.location} ${college.state}`}
+                                onSelect={() => {
+                                  setCollegeId(college.id);
+                                  setOpen(false);
+                                }}
+                              >
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{college.name}</span>
+                                  <span className="text-sm text-muted-foreground">
+                                    {college.location}, {college.state}
+                                  </span>
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div className="space-y-2">
                   <Label>I am a</Label>

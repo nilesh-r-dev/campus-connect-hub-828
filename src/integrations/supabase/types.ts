@@ -131,6 +131,30 @@ export type Database = {
           },
         ]
       }
+      colleges: {
+        Row: {
+          created_at: string
+          id: string
+          location: string
+          name: string
+          state: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          location: string
+          name: string
+          state: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          location?: string
+          name?: string
+          state?: string
+        }
+        Relationships: []
+      }
       enrollments: {
         Row: {
           enrolled_at: string
@@ -245,6 +269,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          college_id: string | null
           created_at: string
           full_name: string
           id: string
@@ -254,6 +279,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          college_id?: string | null
           created_at?: string
           full_name: string
           id?: string
@@ -263,13 +289,22 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          college_id?: string | null
           created_at?: string
           full_name?: string
           id?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_college_id_fkey"
+            columns: ["college_id"]
+            isOneToOne: false
+            referencedRelation: "colleges"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       quiz_attempts: {
         Row: {
@@ -388,6 +423,7 @@ export type Database = {
       }
       subjects: {
         Row: {
+          college_id: string | null
           created_at: string
           description: string | null
           faculty_id: string
@@ -396,6 +432,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          college_id?: string | null
           created_at?: string
           description?: string | null
           faculty_id: string
@@ -404,6 +441,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          college_id?: string | null
           created_at?: string
           description?: string | null
           faculty_id?: string
@@ -412,6 +450,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "subjects_college_id_fkey"
+            columns: ["college_id"]
+            isOneToOne: false
+            referencedRelation: "colleges"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "subjects_faculty_id_fkey"
             columns: ["faculty_id"]
