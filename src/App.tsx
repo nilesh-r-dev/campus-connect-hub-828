@@ -19,6 +19,9 @@ import Grades from "./pages/Grades";
 import AITutor from "./pages/AITutor";
 import CareerNews from "./pages/CareerNews";
 import QuestionPaperAnalysis from "./pages/QuestionPaperAnalysis";
+import ExamPrepChat from "./pages/ExamPrepChat";
+import CareerGuidanceChat from "./pages/CareerGuidanceChat";
+import PreviousYearQuestionsChat from "./pages/PreviousYearQuestionsChat";
 import FacultyVideos from "./pages/FacultyVideos";
 import FacultyQuizzes from "./pages/FacultyQuizzes";
 import FacultyAssignments from "./pages/FacultyAssignments";
@@ -50,6 +53,9 @@ const App = () => (
           <Route path="/ai-tutor" element={<AITutor />} />
           <Route path="/career-news" element={<CareerNews />} />
           <Route path="/question-paper-analysis" element={<QuestionPaperAnalysis />} />
+          <Route path="/exam-prep-chat" element={<ExamPrepChat />} />
+          <Route path="/career-guidance-chat" element={<CareerGuidanceChat />} />
+          <Route path="/pyq-chat" element={<PreviousYearQuestionsChat />} />
           <Route path="/faculty/videos" element={<FacultyVideos />} />
           <Route path="/faculty/quizzes" element={<FacultyQuizzes />} />
           <Route path="/faculty/assignments" element={<FacultyAssignments />} />
