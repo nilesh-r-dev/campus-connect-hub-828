@@ -315,6 +315,57 @@ const StudentDashboard = () => {
               <Button variant="outline" className="w-full border-secondary/50 text-secondary hover:bg-secondary hover:text-secondary-foreground shadow-lg hover:shadow-xl transition-all group-hover:scale-105" onClick={() => navigate("/question-paper-analysis")}>Analyze Papers</Button>
             </CardContent>
           </Card>
+
+          <Card className="group hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 cursor-pointer bg-gradient-to-br from-primary/20 to-accent/20 border-primary/40 backdrop-blur-sm animate-slide-up overflow-hidden relative" style={{ animationDelay: "1.2s" }}>
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardHeader className="relative">
+              <div className="bg-gradient-to-br from-primary via-accent to-primary-glow rounded-2xl p-3 w-fit mb-3 shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                <BookOpen className="h-6 w-6 text-primary-foreground" />
+              </div>
+              <CardTitle className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Exam Prep Chat</CardTitle>
+              <CardDescription>Personalized study strategies</CardDescription>
+            </CardHeader>
+            <CardContent className="relative">
+              <p className="text-sm text-muted-foreground mb-4">
+                Get study plans and exam preparation tips
+              </p>
+              <Button className="w-full shadow-xl hover:shadow-2xl transition-all group-hover:scale-105 bg-gradient-to-r from-primary to-accent" onClick={() => navigate("/exam-prep-chat")}>Start Chat</Button>
+            </CardContent>
+          </Card>
+
+          <Card className="group hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 cursor-pointer bg-gradient-to-br from-accent/20 to-secondary/20 border-accent/40 backdrop-blur-sm animate-slide-up overflow-hidden relative" style={{ animationDelay: "1.3s" }}>
+            <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardHeader className="relative">
+              <div className="bg-gradient-to-br from-accent via-secondary to-accent-glow rounded-2xl p-3 w-fit mb-3 shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                <Briefcase className="h-6 w-6 text-accent-foreground" />
+              </div>
+              <CardTitle className="bg-gradient-to-r from-accent to-secondary bg-clip-text text-transparent">Career Guidance</CardTitle>
+              <CardDescription>Expert career counseling</CardDescription>
+            </CardHeader>
+            <CardContent className="relative">
+              <p className="text-sm text-muted-foreground mb-4">
+                Get personalized career advice and planning
+              </p>
+              <Button variant="outline" className="w-full border-accent/50 text-accent hover:bg-accent hover:text-accent-foreground shadow-lg hover:shadow-xl transition-all group-hover:scale-105" onClick={() => navigate("/career-guidance-chat")}>Get Advice</Button>
+            </CardContent>
+          </Card>
+
+          <Card className="group hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 cursor-pointer bg-gradient-to-br from-secondary/20 to-primary/20 border-secondary/40 backdrop-blur-sm animate-slide-up overflow-hidden relative" style={{ animationDelay: "1.4s" }}>
+            <div className="absolute inset-0 bg-gradient-to-br from-secondary/20 to-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <CardHeader className="relative">
+              <div className="bg-gradient-to-br from-secondary via-primary to-secondary-glow rounded-2xl p-3 w-fit mb-3 shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                <FileText className="h-6 w-6 text-secondary-foreground" />
+              </div>
+              <CardTitle className="bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">Previous Year Questions</CardTitle>
+              <CardDescription>Pattern analysis & solutions</CardDescription>
+            </CardHeader>
+            <CardContent className="relative">
+              <p className="text-sm text-muted-foreground mb-4">
+                Analyze question patterns and get solutions
+              </p>
+              <Button variant="outline" className="w-full border-secondary/50 text-secondary hover:bg-secondary hover:text-secondary-foreground shadow-lg hover:shadow-xl transition-all group-hover:scale-105" onClick={() => navigate("/pyq-chat")}>Start Analysis</Button>
+            </CardContent>
+          </Card>
         </div>
       </main>
 
