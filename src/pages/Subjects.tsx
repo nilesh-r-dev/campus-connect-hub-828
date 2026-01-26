@@ -16,6 +16,7 @@ const Subjects = () => {
   const [enrolledSubjects, setEnrolledSubjects] = useState<Set<string>>(new Set());
   const [userRole, setUserRole] = useState<string>("");
   const [profileId, setProfileId] = useState<string>("");
+  const [collegeId, setCollegeId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -41,12 +42,13 @@ const Subjects = () => {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("id")
+      .select("id, college_id")
       .eq("user_id", session.user.id)
       .single();
 
     setUserRole(roleData?.role || "");
     setProfileId(profile?.id || "");
+    setCollegeId(profile?.college_id || null);
 
     const { data: subjectsData } = await supabase
       .from("subjects")
@@ -72,9 +74,14 @@ const Subjects = () => {
       return;
     }
 
+    if (!collegeId) {
+      toast({ title: "Error", description: "Your profile must be associated with a college to create subjects", variant: "destructive" });
+      return;
+    }
+
     const { error } = await supabase
       .from("subjects")
-      .insert({ title, description, faculty_id: profileId });
+      .insert({ title, description, faculty_id: profileId, college_id: collegeId });
 
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
