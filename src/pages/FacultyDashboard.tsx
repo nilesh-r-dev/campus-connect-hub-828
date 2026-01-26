@@ -3,15 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { GraduationCap, BookOpen, FileText, Video, MessageSquare, LogOut, Briefcase, ClipboardList, Award } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { BookOpen, FileText, Video, MessageSquare, Briefcase, ClipboardList, Award } from "lucide-react";
+import { DashboardLayout } from "@/components/DashboardLayout";
 
 const FacultyDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
-  const [role, setRole] = useState<string>("");
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -40,21 +38,11 @@ const FacultyDashboard = () => {
       }
 
       setProfile(profileData);
-      setRole(roleData?.role || "");
       setLoading(false);
     };
 
     checkAuth();
   }, [navigate]);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out.",
-    });
-    navigate("/auth");
-  };
 
   if (loading) {
     return (
@@ -68,31 +56,8 @@ const FacultyDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-      <header className="border-b bg-card shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-            <div className="bg-primary rounded-full p-2">
-              <GraduationCap className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold">Campus Connect</h1>
-              <p className="text-sm text-muted-foreground">Faculty Portal</p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="text-right">
-              <p className="font-medium">{profile?.full_name}</p>
-              <p className="text-sm text-muted-foreground capitalize">{role}</p>
-            </div>
-            <Button variant="outline" size="icon" onClick={handleLogout}>
-              <LogOut className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8">
+    <DashboardLayout userRole="faculty">
+      <div className="p-6 bg-gradient-to-br from-primary/5 via-background to-secondary/5 min-h-full">
         <div className="mb-8">
           <h2 className="text-3xl font-bold mb-2">Welcome, Professor {profile?.full_name}!</h2>
           <p className="text-muted-foreground">Manage your courses and student activities</p>
@@ -211,8 +176,8 @@ const FacultyDashboard = () => {
             </CardContent>
           </Card>
         </div>
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 };
 
