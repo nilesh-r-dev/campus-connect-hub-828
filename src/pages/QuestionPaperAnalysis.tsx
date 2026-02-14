@@ -4,70 +4,96 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, FileText, Sparkles, Loader2 } from "lucide-react";
+import { Upload, FileText, Sparkles, Loader2, X, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { validateFile } from "@/lib/fileValidation";
+
+type UploadedFile = {
+  name: string;
+  content: string;
+};
 
 const QuestionPaperAnalysis = () => {
   const [content, setContent] = useState("");
   const [analysis, setAnalysis] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const { toast } = useToast();
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const uploadedFile = e.target.files?.[0];
-    if (uploadedFile) {
-      // Validate file
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    Array.from(files).forEach((uploadedFile) => {
       const validation = validateFile(uploadedFile);
       if (!validation.valid) {
         toast({
-          title: "Invalid file",
+          title: `Invalid file: ${uploadedFile.name}`,
           description: validation.error,
           variant: "destructive",
         });
         return;
       }
 
-      // Check content size limit (1MB for text analysis)
-      if (uploadedFile.size > 1024 * 1024) {
+      if (uploadedFile.size > 2 * 1024 * 1024) {
         toast({
           title: "File too large",
-          description: "Please upload files smaller than 1MB for analysis",
+          description: `${uploadedFile.name} exceeds 2MB limit`,
           variant: "destructive",
         });
         return;
       }
 
-      setFile(uploadedFile);
       const reader = new FileReader();
       reader.onload = (event) => {
         const text = event.target?.result as string;
-        setContent(text);
-        toast({
-          title: "File loaded",
-          description: "Question paper content loaded successfully",
+        setUploadedFiles((prev) => {
+          if (prev.some((f) => f.name === uploadedFile.name)) {
+            toast({ title: "Duplicate", description: `${uploadedFile.name} already added`, variant: "destructive" });
+            return prev;
+          }
+          return [...prev, { name: uploadedFile.name, content: text }];
         });
+        toast({ title: "File added", description: `${uploadedFile.name} loaded successfully` });
       };
       reader.readAsText(uploadedFile);
+    });
+
+    // Reset input so user can re-select the same file
+    e.target.value = "";
+  };
+
+  const removeFile = (name: string) => {
+    setUploadedFiles((prev) => prev.filter((f) => f.name !== name));
+  };
+
+  const getCombinedContent = () => {
+    const fileParts = uploadedFiles.map(
+      (f, i) => `--- Question Paper ${i + 1}: ${f.name} ---\n${f.content}`
+    );
+    const allContent = [...fileParts];
+    if (content.trim()) {
+      allContent.push(`--- Pasted Content ---\n${content}`);
     }
+    return allContent.join("\n\n");
   };
 
   const handleAnalyze = async () => {
-    if (!content.trim()) {
+    const combined = getCombinedContent();
+    if (!combined.trim()) {
       toast({
         title: "No content",
-        description: "Please paste or upload question paper content first",
+        description: "Please upload files or paste question paper content first",
         variant: "destructive",
       });
       return;
     }
 
-    // Validate content length (max 50k characters)
-    if (content.length > 50000) {
+    if (combined.length > 100000) {
       toast({
         title: "Content too large",
-        description: "Please limit content to 50,000 characters",
+        description: "Total content exceeds 100,000 characters. Remove some files.",
         variant: "destructive",
       });
       return;
@@ -83,7 +109,7 @@ const QuestionPaperAnalysis = () => {
       }
 
       const { data, error } = await supabase.functions.invoke('analyze-question-paper', {
-        body: { content }
+        body: { content: combined }
       });
 
       if (error) throw error;
@@ -91,13 +117,13 @@ const QuestionPaperAnalysis = () => {
       setAnalysis(data.analysis);
       toast({
         title: "Analysis complete",
-        description: "Your question paper has been analyzed",
+        description: "Your question papers have been analyzed",
       });
     } catch (error) {
       console.error('Error analyzing question paper:', error);
       toast({
         title: "Analysis failed",
-        description: "Failed to analyze the question paper. Please try again.",
+        description: "Failed to analyze. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -105,13 +131,15 @@ const QuestionPaperAnalysis = () => {
     }
   };
 
+  const hasContent = uploadedFiles.length > 0 || content.trim().length > 0;
+
   return (
     <div className="container mx-auto p-6 space-y-6 animate-fadeIn">
       <div className="flex items-center gap-3 mb-6">
         <FileText className="h-8 w-8 text-primary" />
         <div>
           <h1 className="text-3xl font-bold">Question Paper Analysis</h1>
-          <p className="text-muted-foreground">Upload or paste question papers to get AI-powered insights</p>
+          <p className="text-muted-foreground">Upload multiple question papers to get AI-powered insights & important PYQs</p>
         </div>
       </div>
 
@@ -120,50 +148,74 @@ const QuestionPaperAnalysis = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Upload className="h-5 w-5" />
-              Upload Question Paper
+              Upload Question Papers
             </CardTitle>
             <CardDescription>
-              Upload a text file or paste the content below
+              Upload multiple text files or paste content below
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
+              <label
+                htmlFor="file-upload"
+                className="flex items-center justify-center gap-2 border-2 border-dashed border-muted-foreground/30 rounded-lg p-6 cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-colors"
+              >
+                <Plus className="h-5 w-5 text-muted-foreground" />
+                <span className="text-muted-foreground text-sm">Click to add question paper files (.txt, .doc, .docx)</span>
+              </label>
               <Input
+                id="file-upload"
                 type="file"
                 accept=".txt,.doc,.docx,text/*"
                 onChange={handleFileUpload}
-                className="cursor-pointer"
+                className="hidden"
+                multiple
               />
-              {file && (
-                <p className="text-sm text-muted-foreground mt-2">
-                  Loaded: {file.name}
-                </p>
-              )}
             </div>
+
+            {uploadedFiles.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Uploaded Files ({uploadedFiles.length})</p>
+                <div className="flex flex-wrap gap-2">
+                  {uploadedFiles.map((f) => (
+                    <Badge key={f.name} variant="secondary" className="flex items-center gap-1 pr-1">
+                      <FileText className="h-3 w-3" />
+                      <span className="max-w-[150px] truncate">{f.name}</span>
+                      <button
+                        onClick={() => removeFile(f.name)}
+                        className="ml-1 rounded-full hover:bg-destructive/20 p-0.5"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="relative">
               <Textarea
                 placeholder="Or paste your question paper content here..."
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="min-h-[300px] font-mono text-sm"
+                className="min-h-[200px] font-mono text-sm"
               />
             </div>
 
-            <Button 
-              onClick={handleAnalyze} 
-              disabled={isAnalyzing || !content.trim()}
+            <Button
+              onClick={handleAnalyze}
+              disabled={isAnalyzing || !hasContent}
               className="w-full"
             >
               {isAnalyzing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Analyzing...
+                  Analyzing {uploadedFiles.length > 1 ? `${uploadedFiles.length} papers` : ""}...
                 </>
               ) : (
                 <>
                   <Sparkles className="mr-2 h-4 w-4" />
-                  Analyze Question Paper
+                  Analyze {uploadedFiles.length > 1 ? `${uploadedFiles.length} Papers` : "Question Paper"}
                 </>
               )}
             </Button>
@@ -177,7 +229,7 @@ const QuestionPaperAnalysis = () => {
               Analysis Results
             </CardTitle>
             <CardDescription>
-              AI-powered insights and important questions
+              Important PYQs, patterns & AI-powered insights
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -185,12 +237,12 @@ const QuestionPaperAnalysis = () => {
               <div className="flex items-center justify-center min-h-[300px]">
                 <div className="text-center space-y-3">
                   <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
-                  <p className="text-muted-foreground">Analyzing your question paper...</p>
+                  <p className="text-muted-foreground">Analyzing your question papers...</p>
                 </div>
               </div>
             ) : analysis ? (
               <div className="prose prose-sm dark:prose-invert max-w-none">
-                <div className="whitespace-pre-wrap bg-muted p-4 rounded-lg">
+                <div className="whitespace-pre-wrap bg-muted p-4 rounded-lg max-h-[500px] overflow-y-auto">
                   {analysis}
                 </div>
               </div>
@@ -198,7 +250,7 @@ const QuestionPaperAnalysis = () => {
               <div className="flex items-center justify-center min-h-[300px] text-muted-foreground">
                 <div className="text-center space-y-2">
                   <FileText className="h-12 w-12 mx-auto opacity-50" />
-                  <p>Upload or paste a question paper to get started</p>
+                  <p>Upload question papers to get important PYQs & insights</p>
                 </div>
               </div>
             )}
