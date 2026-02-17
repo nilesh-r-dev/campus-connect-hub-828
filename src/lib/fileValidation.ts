@@ -1,6 +1,6 @@
 // File validation utilities for secure file uploads
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILE_SIZE = 30 * 1024 * 1024; // 30MB
 
 const ALLOWED_MIME_TYPES: Record<string, string[]> = {
   'application/pdf': ['pdf'],
@@ -25,7 +25,7 @@ export const validateFile = (file: File): FileValidationResult => {
   if (file.size > MAX_FILE_SIZE) {
     return { 
       valid: false, 
-      error: 'File size exceeds 10MB limit' 
+      error: 'File size exceeds 30MB limit' 
     };
   }
 
