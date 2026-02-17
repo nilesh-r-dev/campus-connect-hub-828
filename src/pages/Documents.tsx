@@ -6,7 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, FolderOpen, FileText, Upload } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ArrowLeft, FolderOpen, FileText, Upload, Pencil, Trash2, MoreVertical } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { validateFile } from "@/lib/fileValidation";
@@ -18,6 +20,9 @@ const Documents = () => {
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [profileId, setProfileId] = useState<string | null>(null);
+  const [editDoc, setEditDoc] = useState<any | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [deleteDoc, setDeleteDoc] = useState<any | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -58,7 +63,6 @@ const Documents = () => {
       return;
     }
 
-    // Validate file
     const validation = validateFile(file);
     if (!validation.valid) {
       toast.error(validation.error);
@@ -76,10 +80,9 @@ const Documents = () => {
 
       if (uploadError) throw uploadError;
 
-      // Use signed URL instead of public URL
       const { data: signedUrlData, error: urlError } = await supabase.storage
         .from('student-documents')
-        .createSignedUrl(fileName, 31536000); // 1 year expiry
+        .createSignedUrl(fileName, 31536000);
 
       if (urlError) throw urlError;
 
@@ -102,6 +105,40 @@ const Documents = () => {
       toast.error(error.message || "Failed to upload document");
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleUpdateTitle = async () => {
+    if (!editDoc || !editTitle.trim()) return;
+    try {
+      const { error } = await supabase
+        .from("student_documents")
+        .update({ title: editTitle.trim() })
+        .eq("id", editDoc.id);
+
+      if (error) throw error;
+      toast.success("Document renamed successfully!");
+      setEditDoc(null);
+      await loadData();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to rename document");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteDoc) return;
+    try {
+      const { error } = await supabase
+        .from("student_documents")
+        .delete()
+        .eq("id", deleteDoc.id);
+
+      if (error) throw error;
+      toast.success("Document deleted successfully!");
+      setDeleteDoc(null);
+      await loadData();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete document");
     }
   };
 
@@ -145,8 +182,30 @@ const Documents = () => {
                 {documents.map((doc, index) => (
                   <Card key={doc.id} className="hover:shadow-lg transition-all animate-fade-in hover:-translate-y-1" style={{ animationDelay: `${index * 0.1}s` }}>
                     <CardHeader>
-                      <div className="bg-secondary/10 rounded-full p-3 w-fit mb-2">
-                        <FileText className="h-6 w-6 text-secondary" />
+                      <div className="flex items-start justify-between">
+                        <div className="bg-secondary/10 rounded-full p-3 w-fit mb-2">
+                          <FileText className="h-6 w-6 text-secondary" />
+                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => { setEditDoc(doc); setEditTitle(doc.title); }}>
+                              <Pencil className="h-4 w-4 mr-2" />
+                              Rename
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => setDeleteDoc(doc)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                       <CardTitle>{doc.title}</CardTitle>
                       <CardDescription>
@@ -208,6 +267,41 @@ const Documents = () => {
           </TabsContent>
         </Tabs>
       </main>
+
+      {/* Rename Dialog */}
+      <Dialog open={!!editDoc} onOpenChange={(open) => !open && setEditDoc(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rename Document</DialogTitle>
+            <DialogDescription>Enter a new title for this document.</DialogDescription>
+          </DialogHeader>
+          <Input
+            value={editTitle}
+            onChange={(e) => setEditTitle(e.target.value)}
+            placeholder="New document title"
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDoc(null)}>Cancel</Button>
+            <Button onClick={handleUpdateTitle}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteDoc} onOpenChange={(open) => !open && setDeleteDoc(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Document</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete "{deleteDoc?.title}"? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDoc(null)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
