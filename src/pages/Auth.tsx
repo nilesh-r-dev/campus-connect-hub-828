@@ -77,7 +77,8 @@ const Auth = () => {
           description: "Successfully logged in.",
         });
 
-        navigate(`/${userRole?.role}-dashboard`);
+        const dashboardRole = userRole?.role === 'admin' ? 'student' : userRole?.role;
+        navigate(`/${dashboardRole}-dashboard`);
       } else {
         if (!collegeId) {
           toast({

@@ -33,7 +33,8 @@ const FacultyDashboard = () => {
         .single();
 
       if (roleData?.role !== "faculty") {
-        navigate(`/${roleData?.role}-dashboard`);
+        const dashboardRole = roleData?.role === 'admin' ? 'student' : roleData?.role;
+        navigate(`/${dashboardRole}-dashboard`);
         return;
       }
 
