@@ -19,7 +19,8 @@ const Index = () => {
           .single();
         
         if (userRole) {
-          navigate(`/${userRole.role}-dashboard`, { replace: true });
+          const dashboardRole = userRole.role === 'admin' ? 'student' : userRole.role;
+          navigate(`/${dashboardRole}-dashboard`, { replace: true });
         }
       }
     };
