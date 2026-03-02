@@ -50,7 +50,7 @@ const App = () => (
           <Route path="/assignment/:assignmentId" element={<AssignmentSubmit />} />
           <Route path="/quiz/:quizId" element={<QuizTake />} />
           <Route path="/grades" element={<Grades />} />
-          <Route path="/ai-tutor" element={<AITutor />} />
+          
           <Route path="/career-news" element={<CareerNews />} />
           <Route path="/question-paper-analysis" element={<QuestionPaperAnalysis />} />
           <Route path="/exam-prep-chat" element={<ExamPrepChat />} />
