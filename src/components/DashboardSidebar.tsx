@@ -27,7 +27,7 @@ import {
   ClipboardList,
   Award,
   Briefcase,
-  Brain,
+  
   Newspaper,
   HelpCircle,
   FileQuestion,
