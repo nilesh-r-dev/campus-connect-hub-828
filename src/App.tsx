@@ -16,7 +16,7 @@ import CourseDetail from "./pages/CourseDetail";
 import AssignmentSubmit from "./pages/AssignmentSubmit";
 import QuizTake from "./pages/QuizTake";
 import Grades from "./pages/Grades";
-import AITutor from "./pages/AITutor";
+
 import CareerNews from "./pages/CareerNews";
 import QuestionPaperAnalysis from "./pages/QuestionPaperAnalysis";
 import ExamPrepChat from "./pages/ExamPrepChat";
@@ -50,7 +50,7 @@ const App = () => (
           <Route path="/assignment/:assignmentId" element={<AssignmentSubmit />} />
           <Route path="/quiz/:quizId" element={<QuizTake />} />
           <Route path="/grades" element={<Grades />} />
-          <Route path="/ai-tutor" element={<AITutor />} />
+          
           <Route path="/career-news" element={<CareerNews />} />
           <Route path="/question-paper-analysis" element={<QuestionPaperAnalysis />} />
           <Route path="/exam-prep-chat" element={<ExamPrepChat />} />

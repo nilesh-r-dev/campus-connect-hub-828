@@ -27,7 +27,7 @@ import {
   ClipboardList,
   Award,
   Briefcase,
-  Brain,
+  
   Newspaper,
   HelpCircle,
   FileQuestion,
@@ -56,7 +56,7 @@ const studentMenuItems = [
   { title: "Grades", url: "/grades", icon: Award },
   { title: "Documents", url: "/documents", icon: Upload },
   { title: "Forum", url: "/forum", icon: MessageSquare },
-  { title: "AI Tutor", url: "/ai-tutor", icon: Brain },
+  
   { title: "Exam Prep", url: "/exam-prep-chat", icon: ClipboardList },
   { title: "Career Guidance", url: "/career-guidance-chat", icon: Briefcase },
   { title: "PYQ Helper", url: "/pyq-chat", icon: FileQuestion },

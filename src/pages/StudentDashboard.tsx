@@ -81,7 +81,7 @@ const StudentDashboard = () => {
   ];
 
   const aiCards = [
-    { icon: Bot, title: "AI Tutor", desc: "Get instant help", colorClass: "from-purple-500/10 to-blue-500/10 border-purple-500/30", iconBg: "bg-purple-500/20", iconColor: "text-purple-600", btnClass: "border-purple-500 text-purple-600 hover:bg-purple-500 hover:text-white", action: () => navigate("/ai-tutor"), label: "Chat" },
+    
     { icon: ClipboardList, title: "Exam Prep", desc: "Study strategies", colorClass: "from-green-500/10 to-teal-500/10 border-green-500/30", iconBg: "bg-green-500/20", iconColor: "text-green-600", btnClass: "border-green-500 text-green-600 hover:bg-green-500 hover:text-white", action: () => navigate("/exam-prep-chat"), label: "Prepare" },
     { icon: Briefcase, title: "Career Guide", desc: "Plan your future", colorClass: "from-orange-500/10 to-amber-500/10 border-orange-500/30", iconBg: "bg-orange-500/20", iconColor: "text-orange-600", btnClass: "border-orange-500 text-orange-600 hover:bg-orange-500 hover:text-white", action: () => navigate("/career-guidance-chat"), label: "Explore" },
     { icon: FileQuestion, title: "PYQ Helper", desc: "Past papers", colorClass: "from-pink-500/10 to-rose-500/10 border-pink-500/30", iconBg: "bg-pink-500/20", iconColor: "text-pink-600", btnClass: "border-pink-500 text-pink-600 hover:bg-pink-500 hover:text-white", action: () => navigate("/pyq-chat"), label: "Analyze" },
