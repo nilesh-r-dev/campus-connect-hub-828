@@ -156,14 +156,39 @@ const Index = () => {
             {features.map((f, i) => (
               <div
                 key={i}
-                className="group bg-background p-6 hover:bg-muted/40 transition-colors duration-200 animate-fade-in cursor-default"
-                style={{ animationDelay: `${0.05 * i}s` }}
+                className="group relative bg-background p-6 transition-colors duration-200 animate-fade-in cursor-default overflow-hidden"
+                style={{ animationDelay: `${0.05 * i}s`, '--glow-opacity': '0' } as React.CSSProperties}
+                onMouseMove={(e) => handleMouseMove(e, i)}
+                onMouseLeave={handleMouseLeave}
               >
-                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/15 transition-colors duration-200">
-                  <f.icon className="h-4.5 w-4.5 text-primary" style={{ width: '1.1rem', height: '1.1rem' }} />
+                {/* Cursor glow effect */}
+                <div
+                  className="pointer-events-none absolute inset-0 transition-opacity duration-300"
+                  style={{
+                    opacity: 'var(--glow-opacity)',
+                    background: `radial-gradient(250px circle at var(--mouse-x) var(--mouse-y), hsla(var(--glow-color, 262, 83%, 58%) / 0.12), transparent 80%)`,
+                  }}
+                />
+                {/* Border glow */}
+                <div
+                  className="pointer-events-none absolute inset-0 transition-opacity duration-300 rounded-[inherit]"
+                  style={{
+                    opacity: 'var(--glow-opacity)',
+                    background: `radial-gradient(300px circle at var(--mouse-x) var(--mouse-y), hsla(var(--glow-color, 262, 83%, 58%) / 0.06), transparent 70%)`,
+                  }}
+                />
+                <div className="relative z-10">
+                  <div
+                    className="w-9 h-9 rounded-lg flex items-center justify-center mb-4 transition-all duration-300"
+                    style={{
+                      background: `hsla(${cardColors[i]} / 0.1)`,
+                    }}
+                  >
+                    <f.icon className="transition-colors duration-300" style={{ width: '1.1rem', height: '1.1rem', color: `hsl(${cardColors[i]})` }} />
+                  </div>
+                  <h3 className="font-medium text-foreground mb-2 text-sm">{f.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
                 </div>
-                <h3 className="font-medium text-foreground mb-2 text-sm">{f.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
