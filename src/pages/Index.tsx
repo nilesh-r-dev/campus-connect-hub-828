@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,15 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  const cardColors = [
+    "262, 83%, 58%",  // purple
+    "199, 89%, 48%",  // cyan
+    "340, 75%, 55%",  // rose
+    "160, 84%, 39%",  // emerald
+    "32, 95%, 54%",   // amber
+    "220, 70%, 55%",  // blue
+  ];
+
   const features = [
     { icon: BookOpen, title: "Course Management", desc: "Create and manage subjects, assignments, quizzes, and notes from a single dashboard." },
     { icon: Video, title: "Video Lectures", desc: "Upload and stream video lectures with seamless playback and progress tracking." },
@@ -37,6 +46,21 @@ const Index = () => {
     { icon: Zap, title: "Instant Grading", desc: "Faculty can review submissions and provide structured feedback in real time." },
     { icon: GraduationCap, title: "Discussion Forum", desc: "Engage in focused, subject-wise academic discussions with markdown support." },
   ];
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>, index: number) => {
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    card.style.setProperty('--mouse-x', `${x}px`);
+    card.style.setProperty('--mouse-y', `${y}px`);
+    card.style.setProperty('--glow-color', cardColors[index]);
+    card.style.setProperty('--glow-opacity', '1');
+  }, []);
+
+  const handleMouseLeave = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    e.currentTarget.style.setProperty('--glow-opacity', '0');
+  }, []);
 
   const highlights = [
     "AI-powered tutoring and exam preparation",
@@ -132,14 +156,39 @@ const Index = () => {
             {features.map((f, i) => (
               <div
                 key={i}
-                className="group bg-background p-6 hover:bg-muted/40 transition-colors duration-200 animate-fade-in cursor-default"
-                style={{ animationDelay: `${0.05 * i}s` }}
+                className="group relative bg-background p-6 transition-colors duration-200 animate-fade-in cursor-default overflow-hidden"
+                style={{ animationDelay: `${0.05 * i}s`, '--glow-opacity': '0' } as React.CSSProperties}
+                onMouseMove={(e) => handleMouseMove(e, i)}
+                onMouseLeave={handleMouseLeave}
               >
-                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/15 transition-colors duration-200">
-                  <f.icon className="h-4.5 w-4.5 text-primary" style={{ width: '1.1rem', height: '1.1rem' }} />
+                {/* Cursor glow effect */}
+                <div
+                  className="pointer-events-none absolute inset-0 transition-opacity duration-300"
+                  style={{
+                    opacity: 'var(--glow-opacity)',
+                    background: `radial-gradient(250px circle at var(--mouse-x) var(--mouse-y), hsla(var(--glow-color, 262, 83%, 58%) / 0.12), transparent 80%)`,
+                  }}
+                />
+                {/* Border glow */}
+                <div
+                  className="pointer-events-none absolute inset-0 transition-opacity duration-300 rounded-[inherit]"
+                  style={{
+                    opacity: 'var(--glow-opacity)',
+                    background: `radial-gradient(300px circle at var(--mouse-x) var(--mouse-y), hsla(var(--glow-color, 262, 83%, 58%) / 0.06), transparent 70%)`,
+                  }}
+                />
+                <div className="relative z-10">
+                  <div
+                    className="w-9 h-9 rounded-lg flex items-center justify-center mb-4 transition-all duration-300"
+                    style={{
+                      background: `hsla(${cardColors[i]} / 0.1)`,
+                    }}
+                  >
+                    <f.icon className="transition-colors duration-300" style={{ width: '1.1rem', height: '1.1rem', color: `hsl(${cardColors[i]})` }} />
+                  </div>
+                  <h3 className="font-medium text-foreground mb-2 text-sm">{f.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
                 </div>
-                <h3 className="font-medium text-foreground mb-2 text-sm">{f.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
