@@ -29,6 +29,15 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  const cardColors = [
+    "262, 83%, 58%",  // purple
+    "199, 89%, 48%",  // cyan
+    "340, 75%, 55%",  // rose
+    "160, 84%, 39%",  // emerald
+    "32, 95%, 54%",   // amber
+    "220, 70%, 55%",  // blue
+  ];
+
   const features = [
     { icon: BookOpen, title: "Course Management", desc: "Create and manage subjects, assignments, quizzes, and notes from a single dashboard." },
     { icon: Video, title: "Video Lectures", desc: "Upload and stream video lectures with seamless playback and progress tracking." },
@@ -37,6 +46,21 @@ const Index = () => {
     { icon: Zap, title: "Instant Grading", desc: "Faculty can review submissions and provide structured feedback in real time." },
     { icon: GraduationCap, title: "Discussion Forum", desc: "Engage in focused, subject-wise academic discussions with markdown support." },
   ];
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>, index: number) => {
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    card.style.setProperty('--mouse-x', `${x}px`);
+    card.style.setProperty('--mouse-y', `${y}px`);
+    card.style.setProperty('--glow-color', cardColors[index]);
+    card.style.setProperty('--glow-opacity', '1');
+  }, []);
+
+  const handleMouseLeave = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    e.currentTarget.style.setProperty('--glow-opacity', '0');
+  }, []);
 
   const highlights = [
     "AI-powered tutoring and exam preparation",
