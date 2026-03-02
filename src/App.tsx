@@ -16,7 +16,7 @@ import CourseDetail from "./pages/CourseDetail";
 import AssignmentSubmit from "./pages/AssignmentSubmit";
 import QuizTake from "./pages/QuizTake";
 import Grades from "./pages/Grades";
-import AITutor from "./pages/AITutor";
+
 import CareerNews from "./pages/CareerNews";
 import QuestionPaperAnalysis from "./pages/QuestionPaperAnalysis";
 import ExamPrepChat from "./pages/ExamPrepChat";
