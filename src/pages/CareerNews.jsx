@@ -1,0 +1,308 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { ArrowLeft, Briefcase, GraduationCap, Target, TrendingUp, Plus, Sparkles } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { ChatbotWidget } from "@/components/ChatbotWidget";
+const CareerNews = () => {
+    const [loading, setLoading] = useState(true);
+    const [news, setNews] = useState([]);
+    const [profile, setProfile] = useState(null);
+    const [role, setRole] = useState("");
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [recommendations, setRecommendations] = useState([]);
+    const [formData, setFormData] = useState({
+        title: "",
+        content: "",
+        source: "",
+        category: "career",
+    });
+    const navigate = useNavigate();
+    const { toast } = useToast();
+    const categoryIcons = {
+        career: Briefcase,
+        internship: GraduationCap,
+        placement: Target,
+        skill: TrendingUp,
+    };
+    const categoryColors = {
+        career: "bg-primary/10 text-primary border-primary/20",
+        internship: "bg-accent/10 text-accent border-accent/20",
+        placement: "bg-secondary/10 text-secondary border-secondary/20",
+        skill: "bg-primary/20 text-primary border-primary/30",
+    };
+    const fetchRecommendations = async () => {
+        try {
+            const { data } = await supabase.functions.invoke('news-recommendations', {
+                body: { userInterests: 'technology, career development, internships' }
+            });
+            if (data?.recommendations) {
+                setRecommendations(data.recommendations);
+            }
+        }
+        catch (error) {
+            console.error('Failed to fetch recommendations:', error);
+        }
+    };
+    useEffect(() => {
+        const fetchNews = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                const { data: profileData } = await supabase
+                    .from("profiles")
+                    .select("*")
+                    .eq("user_id", session.user.id)
+                    .single();
+                const { data: roleData } = await supabase
+                    .from("user_roles")
+                    .select("role")
+                    .eq("user_id", session.user.id)
+                    .single();
+                setProfile(profileData);
+                setRole(roleData?.role || "");
+            }
+            const { data, error } = await supabase
+                .from("career_news")
+                .select("*, profiles(full_name)")
+                .order("created_at", { ascending: false });
+            if (error) {
+                toast({
+                    title: "Error",
+                    description: "Failed to load career news",
+                    variant: "destructive",
+                });
+            }
+            else {
+                setNews(data || []);
+            }
+            setLoading(false);
+        };
+        fetchNews();
+        fetchRecommendations();
+        // Subscribe to real-time updates
+        const channel = supabase
+            .channel("career_news_changes")
+            .on("postgres_changes", {
+            event: "*",
+            schema: "public",
+            table: "career_news",
+        }, (payload) => {
+            if (payload.eventType === "INSERT") {
+                fetchNews();
+                fetchRecommendations();
+            }
+            else if (payload.eventType === "DELETE") {
+                setNews((prev) => prev.filter((item) => item.id !== payload.old.id));
+            }
+            else if (payload.eventType === "UPDATE") {
+                fetchNews();
+                fetchRecommendations();
+            }
+        })
+            .subscribe();
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [toast]);
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!profile) {
+            toast({
+                title: "Error",
+                description: "You must be logged in to post",
+                variant: "destructive",
+            });
+            return;
+        }
+        const { error } = await supabase.from("career_news").insert({
+            title: formData.title,
+            content: formData.content,
+            source: formData.source || null,
+            category: formData.category,
+            posted_by: profile.id,
+        });
+        if (error) {
+            toast({
+                title: "Error",
+                description: "Failed to post career news",
+                variant: "destructive",
+            });
+        }
+        else {
+            toast({
+                title: "Success",
+                description: "Career news posted successfully",
+            });
+            setFormData({ title: "", content: "", source: "", category: "career" });
+            setIsDialogOpen(false);
+        }
+    };
+    if (loading) {
+        return (<div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading...</p>
+        </div>
+      </div>);
+    }
+    return (<div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+      <header className="border-b bg-card shadow-sm animate-fade-in">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <Button variant="ghost" onClick={() => navigate(role === "faculty" ? "/faculty-dashboard" : "/student-dashboard")} className="hover:scale-105 transition-transform duration-300">
+            <ArrowLeft className="mr-2 h-4 w-4"/>
+            Back to Dashboard
+          </Button>
+          {role === "faculty" && (<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="hover:scale-105 transition-transform duration-300">
+                  <Plus className="mr-2 h-4 w-4"/>
+                  Post News
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Post Career News</DialogTitle>
+                  <DialogDescription>
+                    Share career opportunities and updates with students
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <Label htmlFor="title">Title</Label>
+                    <Input id="title" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} required/>
+                  </div>
+                  <div>
+                    <Label htmlFor="category">Category</Label>
+                    <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="career">Career</SelectItem>
+                        <SelectItem value="internship">Internship</SelectItem>
+                        <SelectItem value="placement">Placement</SelectItem>
+                        <SelectItem value="skill">Skill Development</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="source">Source (Optional)</Label>
+                    <Input id="source" value={formData.source} onChange={(e) => setFormData({ ...formData, source: e.target.value })} placeholder="e.g., LinkedIn, Company website"/>
+                  </div>
+                  <div>
+                    <Label htmlFor="content">Content</Label>
+                    <Textarea id="content" value={formData.content} onChange={(e) => setFormData({ ...formData, content: e.target.value })} rows={6} required/>
+                  </div>
+                  <Button type="submit" className="w-full">Post News</Button>
+                </form>
+              </DialogContent>
+            </Dialog>)}
+        </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-8">
+        <div className="mb-8 animate-fade-in">
+          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Career & Internship News</h1>
+          <p className="text-muted-foreground">
+            Stay updated with the latest career opportunities, internships, and skill development resources
+          </p>
+        </div>
+
+        {recommendations.length > 0 && (<div className="mb-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-primary animate-pulse"/>
+                  Recommended for You
+                </CardTitle>
+                <CardDescription>AI-curated news based on your interests</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4">
+                  {recommendations.slice(0, 3).map((item, idx) => {
+                const Icon = categoryIcons[item.category];
+                return (<Card key={item.id} className="hover:shadow-lg transition-all hover:-translate-y-1" style={{ animationDelay: `${idx * 0.1}s` }}>
+                        <CardHeader>
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                              <div className={`rounded-full p-2 ${categoryColors[item.category]}`}>
+                                <Icon className="h-4 w-4"/>
+                              </div>
+                              <div>
+                                <CardTitle className="text-lg">{item.title}</CardTitle>
+                                <Badge variant="secondary" className="mt-1">{item.category}</Badge>
+                              </div>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-muted-foreground mb-2 line-clamp-2">{item.content}</p>
+                          {item.source && (<p className="text-sm text-muted-foreground">Source: {item.source}</p>)}
+                        </CardContent>
+                      </Card>);
+            })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>)}
+
+        {news.length === 0 ? (<Card className="animate-fade-in">
+            <CardContent className="py-12 text-center">
+              <Briefcase className="h-12 w-12 mx-auto mb-4 text-muted-foreground animate-pulse"/>
+              <p className="text-muted-foreground">No career news available yet</p>
+            </CardContent>
+          </Card>) : (<div className="grid gap-6">
+            {news.map((item, index) => {
+                const Icon = categoryIcons[item.category];
+                return (<Card key={item.id} className="hover:shadow-xl hover:-translate-y-1 transition-all duration-300 animate-fade-in border-l-4" style={{
+                        animationDelay: `${index * 0.1}s`,
+                        borderLeftColor: item.category === 'career' ? 'hsl(var(--primary))' :
+                            item.category === 'internship' ? 'hsl(var(--accent))' :
+                                item.category === 'placement' ? 'hsl(var(--secondary))' :
+                                    'hsl(var(--primary))'
+                    }}>
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className={`rounded-full p-2 ${categoryColors[item.category]} transition-transform hover:scale-110 duration-300`}>
+                            <Icon className="h-5 w-5"/>
+                          </div>
+                          <Badge variant="outline" className={`${categoryColors[item.category]} animate-fade-in`}>
+                            {item.category.charAt(0).toUpperCase() + item.category.slice(1)}
+                          </Badge>
+                        </div>
+                        <CardTitle className="text-2xl mb-2 hover:text-primary transition-colors duration-300">{item.title}</CardTitle>
+                        <CardDescription className="flex items-center gap-2">
+                          <span>Posted by {item.profiles?.full_name}</span>
+                          <span>•</span>
+                          <span>{format(new Date(item.created_at), "MMM dd, yyyy")}</span>
+                          {item.source && (<>
+                              <span>•</span>
+                              <span className="text-primary font-medium">{item.source}</span>
+                            </>)}
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">{item.content}</p>
+                  </CardContent>
+                </Card>);
+            })}
+          </div>)}
+      </main>
+
+      <ChatbotWidget />
+    </div>);
+};
+export default CareerNews;
