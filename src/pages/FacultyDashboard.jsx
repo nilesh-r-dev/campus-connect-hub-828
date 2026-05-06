@@ -45,10 +45,15 @@ const FacultyDashboard = () => {
       </div>);
     }
     return (<DashboardLayout userRole="faculty">
-      <div className="p-6 bg-gradient-to-br from-primary/5 via-background to-secondary/5 min-h-full">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2">Welcome, Professor {profile?.full_name}!</h2>
-          <p className="text-muted-foreground">Manage your courses and student activities</p>
+      <div className="p-6 md:p-10 bg-gradient-hero min-h-full relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-20 -left-20 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse"/>
+          <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-secondary/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }}/>
+        </div>
+        <div className="relative z-10 mb-10 animate-slide-right">
+          <div className="inline-block px-3 py-1 mb-4 text-xs font-semibold uppercase tracking-widest bg-accent text-accent-foreground rounded-full shadow-pop">Faculty Portal</div>
+          <h2 className="text-4xl md:text-5xl font-display font-bold mb-2 text-gradient">Welcome, Prof. {profile?.full_name}!</h2>
+          <p className="text-muted-foreground text-lg">Manage your courses and student activities</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
