@@ -1,205 +1,304 @@
-import { useEffect, useCallback } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, BookOpen, Users, Video, Shield, Zap, ArrowRight, CheckCircle } from "lucide-react";
-const Index = () => {
-    const navigate = useNavigate();
-    useEffect(() => {
-        const checkAuthAndRedirect = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                const { data: userRole } = await supabase
-                    .from("user_roles")
-                    .select("role")
-                    .eq("user_id", session.user.id)
-                    .single();
-                if (userRole) {
-                    const dashboardRole = userRole.role === 'admin' ? 'student' : userRole.role;
-                    navigate(`/${dashboardRole}-dashboard`, { replace: true });
-                }
-            }
-        };
-        checkAuthAndRedirect();
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' && session)
-                checkAuthAndRedirect();
-        });
-        return () => subscription.unsubscribe();
-    }, [navigate]);
-    const cardColors = [
-        "262, 83%, 58%", // purple
-        "199, 89%, 48%", // cyan
-        "340, 75%, 55%", // rose
-        "160, 84%, 39%", // emerald
-        "32, 95%, 54%", // amber
-        "220, 70%, 55%", // blue
-    ];
-    const features = [
-        { icon: BookOpen, title: "Course Management", desc: "Create and manage subjects, assignments, quizzes, and notes from a single dashboard." },
-        { icon: Video, title: "Video Lectures", desc: "Upload and stream video lectures with seamless playback and progress tracking." },
-        { icon: Users, title: "Student Portal", desc: "Access enrolled courses, submit assignments, and participate in subject discussions." },
-        { icon: Shield, title: "Secure Documents", desc: "Store personal documents securely with role-based access and privacy controls." },
-        { icon: Zap, title: "Instant Grading", desc: "Faculty can review submissions and provide structured feedback in real time." },
-        { icon: GraduationCap, title: "Discussion Forum", desc: "Engage in focused, subject-wise academic discussions with markdown support." },
-    ];
-    const handleMouseMove = useCallback((e, index) => {
-        const card = e.currentTarget;
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        card.style.setProperty('--mouse-x', `${x}px`);
-        card.style.setProperty('--mouse-y', `${y}px`);
-        card.style.setProperty('--glow-color', cardColors[index]);
-        card.style.setProperty('--glow-opacity', '1');
-    }, []);
-    const handleMouseLeave = useCallback((e) => {
-        e.currentTarget.style.setProperty('--glow-opacity', '0');
-    }, []);
-    const highlights = [
-        "AI-powered tutoring and exam preparation",
-        "Career guidance and news feed",
-        "Previous year question paper analysis",
-        "Real-time assignment submission tracking",
-    ];
-    return (<div className="min-h-screen bg-background text-foreground">
-      {/* Subtle gradient backdrop */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"/>
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full opacity-[0.04]" style={{ background: 'radial-gradient(circle, hsl(262 83% 58%), transparent)' }}/>
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full opacity-[0.04]" style={{ background: 'radial-gradient(circle, hsl(199 89% 48%), transparent)' }}/>
-      </div>
+import {
+  GraduationCap, BookOpen, Users, Video, Shield, Zap, ArrowRight, CheckCircle,
+  Sparkles, Brain, MessageSquare, Award, Star, ChevronRight, Newspaper, FileQuestion
+} from "lucide-react";
 
+const Index = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: userRole } = await supabase
+          .from("user_roles").select("role").eq("user_id", session.user.id).single();
+        if (userRole) {
+          const dashboardRole = userRole.role === "admin" ? "student" : userRole.role;
+          navigate(`/${dashboardRole}-dashboard`, { replace: true });
+        }
+      }
+    };
+    checkAuth();
+  }, [navigate]);
+
+  const features = [
+    { icon: BookOpen, title: "Course Management", desc: "Create subjects, assignments, quizzes & notes from one dashboard.", color: "primary" },
+    { icon: Video, title: "Video Lectures", desc: "Upload, stream and track student progress in real time.", color: "secondary" },
+    { icon: Brain, title: "AI Tutor", desc: "Personalized exam prep, PYQ analysis & instant doubt-solving.", color: "accent" },
+    { icon: MessageSquare, title: "Discussion Forum", desc: "Subject-wise threads with markdown, upvotes & faculty answers.", color: "primary" },
+    { icon: Shield, title: "Secure Documents", desc: "Private storage with signed URLs and role-based access.", color: "secondary" },
+    { icon: Newspaper, title: "Career Hub", desc: "Curated job feeds, AI career guidance and PYQ helpers.", color: "accent" },
+  ];
+
+  const steps = [
+    { n: "01", title: "Sign up", desc: "Pick your college and choose student or faculty." },
+    { n: "02", title: "Set up your space", desc: "Faculty creates subjects. Students enroll instantly." },
+    { n: "03", title: "Learn & teach", desc: "Lectures, assignments, AI tools — all in one place." },
+  ];
+
+  const stats = [
+    { v: "10k+", l: "Active Students" },
+    { v: "500+", l: "Faculty" },
+    { v: "120+", l: "Colleges" },
+    { v: "4.9", l: "Avg. Rating" },
+  ];
+
+  const testimonials = [
+    { name: "Priya S.", role: "CS Student", quote: "The AI tutor saved me before finals. PYQ helper is gold." },
+    { name: "Dr. Mehta", role: "Faculty, ECE", quote: "Managing assignments and quizzes finally feels effortless." },
+    { name: "Arjun K.", role: "Engineering Student", quote: "Career news + guidance got me my first internship." },
+  ];
+
+  return (
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <GraduationCap className="h-4 w-4 text-primary-foreground"/>
+      <header className="sticky top-0 z-50 glass">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center shadow-pop">
+              <GraduationCap className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="font-semibold text-foreground tracking-tight">Campus Connect</span>
+            <span className="font-display font-bold text-lg tracking-tight">Campus Connect</span>
           </div>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => navigate("/auth")} className="text-muted-foreground hover:text-foreground">
-              Sign in
-            </Button>
-            <Button size="sm" onClick={() => navigate("/auth")} className="gap-2">
-              Get started <ArrowRight className="h-3.5 w-3.5"/>
+          <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
+            <a href="#features" className="hover:text-primary transition-colors">Features</a>
+            <a href="#how" className="hover:text-primary transition-colors">How it works</a>
+            <a href="#testimonials" className="hover:text-primary transition-colors">Reviews</a>
+          </nav>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/auth")}>Sign in</Button>
+            <Button size="sm" onClick={() => navigate("/auth")} className="gap-1.5 gradient-primary text-primary-foreground border-0 shadow-pop hover:translate-y-[-2px] transition-transform">
+              Get started <ArrowRight className="h-3.5 w-3.5" />
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="relative z-10">
-        {/* Hero */}
-        <section className="max-w-6xl mx-auto px-6 pt-20 pb-24">
-          <div className="max-w-3xl animate-fade-in">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-xs font-medium mb-8 animate-slide-up">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"/>
-              Learning Management Platform
+      {/* Hero */}
+      <section className="relative px-6 pt-20 pb-32 overflow-hidden">
+        <div className="absolute -top-40 -left-40 w-[500px] h-[500px] bg-primary/30 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute top-20 -right-40 w-[500px] h-[500px] bg-secondary/30 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: "1s" }} />
+        <div className="absolute bottom-0 left-1/3 w-[400px] h-[400px] bg-accent/20 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: "2s" }} />
+
+        <div className="relative max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+          <div className="animate-slide-right">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border-2 border-foreground/10 bg-card/60 backdrop-blur text-xs font-semibold uppercase tracking-wider mb-6">
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
+              AI-powered learning platform
             </div>
 
-            <h1 className="text-5xl md:text-6xl font-bold tracking-tight leading-tight mb-6 animate-slide-up" style={{ animationDelay: "0.1s" }}>
-              A smarter way to{" "}
-              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                teach and learn
-              </span>
+            <h1 className="font-display text-5xl md:text-7xl font-bold leading-[1.05] tracking-tight mb-6">
+              Learn bolder.<br />
+              <span className="text-gradient">Teach smarter.</span>
             </h1>
 
-            <p className="text-lg text-muted-foreground leading-relaxed mb-10 max-w-xl animate-slide-up" style={{ animationDelay: "0.15s" }}>
-              Campus Connect brings students and faculty together on a single platform — with AI-powered tools, structured course management, and real-time collaboration.
+            <p className="text-lg text-muted-foreground leading-relaxed mb-8 max-w-lg">
+              Campus Connect unites students and faculty with AI tutors, video lectures, assignments and a single beautiful dashboard.
             </p>
 
-            <div className="flex items-center gap-4 animate-slide-up" style={{ animationDelay: "0.2s" }}>
-              <Button size="lg" onClick={() => navigate("/auth")} className="gap-2 px-6">
-                Start for free <ArrowRight className="h-4 w-4"/>
+            <div className="flex flex-wrap items-center gap-3 mb-10">
+              <Button size="lg" onClick={() => navigate("/auth")} className="gap-2 gradient-primary text-primary-foreground border-0 shadow-pop hover:translate-y-[-2px] transition-transform px-7 h-12 text-base">
+                Start free <ArrowRight className="h-4 w-4" />
               </Button>
-              <Button size="lg" variant="outline" onClick={() => navigate("/auth")} className="px-6">
+              <Button size="lg" variant="outline" onClick={() => navigate("/auth")} className="border-2 border-foreground hover:bg-foreground hover:text-background h-12 px-7 text-base">
                 Faculty access
               </Button>
             </div>
 
-            <ul className="mt-10 flex flex-col sm:flex-row gap-4 sm:gap-8 animate-fade-in" style={{ animationDelay: "0.3s" }}>
-              {highlights.map((h, i) => (<li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
-                  <CheckCircle className="h-4 w-4 text-primary mt-0.5 shrink-0"/>
-                  {h}
-                </li>))}
-            </ul>
-          </div>
-        </section>
-
-        {/* Divider */}
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent"/>
-        </div>
-
-        {/* Features */}
-        <section className="max-w-6xl mx-auto px-6 py-24">
-          <div className="mb-14 animate-fade-in">
-            <h2 className="text-2xl font-semibold tracking-tight mb-2">Everything you need</h2>
-            <p className="text-muted-foreground">Built for both students and faculty, with purpose-built tools for every stage of learning.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-border rounded-xl overflow-hidden border border-border">
-            {features.map((f, i) => (<div key={i} className="group relative bg-background p-6 transition-colors duration-200 animate-fade-in cursor-default overflow-hidden" style={{ animationDelay: `${0.05 * i}s`, '--glow-opacity': '0' }} onMouseMove={(e) => handleMouseMove(e, i)} onMouseLeave={handleMouseLeave}>
-                {/* Cursor glow effect */}
-                <div className="pointer-events-none absolute inset-0 transition-opacity duration-300" style={{
-                opacity: 'var(--glow-opacity)',
-                background: `radial-gradient(250px circle at var(--mouse-x) var(--mouse-y), hsla(var(--glow-color, 262, 83%, 58%) / 0.12), transparent 80%)`,
-            }}/>
-                {/* Border glow */}
-                <div className="pointer-events-none absolute inset-0 transition-opacity duration-300 rounded-[inherit]" style={{
-                opacity: 'var(--glow-opacity)',
-                background: `radial-gradient(300px circle at var(--mouse-x) var(--mouse-y), hsla(var(--glow-color, 262, 83%, 58%) / 0.06), transparent 70%)`,
-            }}/>
-                <div className="relative z-10">
-                  <div className="w-9 h-9 rounded-lg flex items-center justify-center mb-4 transition-all duration-300" style={{
-                background: `hsla(${cardColors[i]} / 0.1)`,
-            }}>
-                    <f.icon className="transition-colors duration-300" style={{ width: '1.1rem', height: '1.1rem', color: `hsl(${cardColors[i]})` }}/>
+            <div className="flex items-center gap-6">
+              <div className="flex -space-x-2">
+                {["primary", "secondary", "accent", "primary"].map((c, i) => (
+                  <div key={i} className={`w-8 h-8 rounded-full border-2 border-background bg-${c} flex items-center justify-center text-xs font-bold text-${c}-foreground`}>
+                    {String.fromCharCode(65 + i)}
                   </div>
-                  <h3 className="font-medium text-foreground mb-2 text-sm">{f.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+                ))}
+              </div>
+              <div className="text-sm">
+                <div className="flex items-center gap-0.5">
+                  {[...Array(5)].map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-accent text-accent" />)}
                 </div>
-              </div>))}
+                <p className="text-muted-foreground text-xs mt-0.5">Loved by 10k+ students</p>
+              </div>
+            </div>
           </div>
-        </section>
 
-        {/* Divider */}
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent"/>
+          {/* Hero visual */}
+          <div className="relative animate-slide-left hidden lg:block">
+            <div className="relative aspect-square max-w-lg mx-auto">
+              <div className="absolute inset-0 gradient-primary rounded-[3rem] rotate-6 shadow-elegant" />
+              <div className="absolute inset-0 bg-card rounded-[3rem] -rotate-3 shadow-pop border-2 border-foreground/10 p-8 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-2">
+                      <div className="w-10 h-10 rounded-xl gradient-accent flex items-center justify-center">
+                        <Brain className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="font-display font-bold text-sm">AI Tutor</p>
+                        <p className="text-xs text-muted-foreground">Online now</p>
+                      </div>
+                    </div>
+                    <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+                  </div>
+                  <div className="space-y-3">
+                    <div className="bg-muted rounded-2xl rounded-tl-md p-3 text-sm max-w-[85%]">Explain integration by parts.</div>
+                    <div className="gradient-primary text-primary-foreground rounded-2xl rounded-tr-md p-3 text-sm max-w-[85%] ml-auto">Sure! Take ∫u dv = uv − ∫v du. Let's pick u and dv carefully…</div>
+                    <div className="flex gap-2">
+                      <span className="px-2.5 py-1 bg-secondary/15 text-secondary rounded-full text-xs font-medium">Math</span>
+                      <span className="px-2.5 py-1 bg-accent/20 text-accent-foreground rounded-full text-xs font-medium">PYQ ready</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {[BookOpen, Video, Award].map((Icon, i) => (
+                    <div key={i} className="aspect-square rounded-2xl border-2 border-foreground/10 flex items-center justify-center hover:gradient-primary hover:text-primary-foreground hover:border-transparent transition-all cursor-pointer">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Floating chips */}
+              <div className="absolute -top-4 -right-4 px-4 py-2 bg-accent text-accent-foreground rounded-full font-bold text-sm shadow-pop animate-bounce-slow">
+                <Zap className="h-4 w-4 inline mr-1" /> 24/7 AI
+              </div>
+              <div className="absolute -bottom-4 -left-4 px-4 py-2 bg-secondary text-secondary-foreground rounded-full font-bold text-sm shadow-pop">
+                Free to start
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats strip */}
+      <section className="relative px-6 py-12 border-y-2 border-foreground/10 bg-foreground text-background">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
+          {stats.map((s, i) => (
+            <div key={i} className="text-center">
+              <div className="font-display text-4xl md:text-5xl font-bold text-gradient mb-1">{s.v}</div>
+              <div className="text-xs uppercase tracking-widest opacity-70">{s.l}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Features */}
+      <section id="features" className="px-6 py-24 max-w-7xl mx-auto">
+        <div className="max-w-2xl mb-14">
+          <span className="inline-block px-3 py-1 rounded-full bg-accent text-accent-foreground text-xs font-bold uppercase tracking-widest mb-4 shadow-pop">Features</span>
+          <h2 className="font-display text-4xl md:text-5xl font-bold tracking-tight mb-4">
+            Everything your campus needs,<br /><span className="text-gradient">in one app.</span>
+          </h2>
+          <p className="text-muted-foreground text-lg">Built end-to-end for both students and faculty — no plugins, no juggling tools.</p>
         </div>
 
-        {/* CTA */}
-        <section className="max-w-6xl mx-auto px-6 py-24">
-          <div className="rounded-2xl border border-border bg-muted/30 p-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 animate-fade-in">
-            <div>
-              <h2 className="text-2xl font-semibold tracking-tight mb-2">Ready to get started?</h2>
-              <p className="text-muted-foreground text-sm max-w-md">
-                Create your account and access your personalized learning dashboard in minutes.
-              </p>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {features.map((f, i) => (
+            <div key={i} className="group relative bg-card border-2 border-foreground/10 rounded-3xl p-6 hover:shadow-pop hover:-translate-y-1 hover:translate-x-[-3px] transition-all duration-200">
+              <div className={`w-12 h-12 rounded-2xl bg-${f.color} flex items-center justify-center mb-4 group-hover:rotate-6 transition-transform`}>
+                <f.icon className={`h-6 w-6 text-${f.color}-foreground`} />
+              </div>
+              <h3 className="font-display font-bold text-xl mb-2">{f.title}</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">{f.desc}</p>
+              <ChevronRight className="absolute top-6 right-6 h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
             </div>
-            <div className="flex items-center gap-3 shrink-0">
-              <Button variant="outline" onClick={() => navigate("/auth")}>Sign in</Button>
-              <Button onClick={() => navigate("/auth")} className="gap-2">
-                Create account <ArrowRight className="h-4 w-4"/>
+          ))}
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section id="how" className="px-6 py-24 bg-muted/40 border-y-2 border-foreground/10">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <span className="inline-block px-3 py-1 rounded-full bg-secondary text-secondary-foreground text-xs font-bold uppercase tracking-widest mb-4 shadow-pop">How it works</span>
+            <h2 className="font-display text-4xl md:text-5xl font-bold tracking-tight">Three steps. Zero friction.</h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {steps.map((s, i) => (
+              <div key={i} className="relative bg-card border-2 border-foreground rounded-3xl p-8 shadow-pop">
+                <div className="font-display text-7xl font-bold text-gradient leading-none mb-4">{s.n}</div>
+                <h3 className="font-display font-bold text-2xl mb-2">{s.title}</h3>
+                <p className="text-muted-foreground">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section id="testimonials" className="px-6 py-24 max-w-7xl mx-auto">
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <span className="inline-block px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest mb-4 shadow-pop">Loved by campus</span>
+          <h2 className="font-display text-4xl md:text-5xl font-bold tracking-tight">Real results, real students.</h2>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-5">
+          {testimonials.map((t, i) => {
+            const tints = ["bg-primary/10", "bg-secondary/10", "bg-accent/15"];
+            return (
+              <div key={i} className={`${tints[i]} rounded-3xl p-7 border-2 border-foreground/10`}>
+                <div className="flex gap-0.5 mb-4">
+                  {[...Array(5)].map((_, j) => <Star key={j} className="h-4 w-4 fill-foreground text-foreground" />)}
+                </div>
+                <p className="text-lg font-medium leading-snug mb-6">"{t.quote}"</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center text-primary-foreground font-bold">
+                    {t.name[0]}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm">{t.name}</p>
+                    <p className="text-xs text-muted-foreground">{t.role}</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="px-6 py-20">
+        <div className="max-w-5xl mx-auto relative overflow-hidden gradient-primary rounded-[3rem] p-12 md:p-16 text-center shadow-elegant">
+          <div className="absolute -top-20 -right-20 w-64 h-64 bg-accent/30 rounded-full blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-secondary/40 rounded-full blur-3xl" />
+          <div className="relative">
+            <Sparkles className="h-10 w-10 text-primary-foreground mx-auto mb-6" />
+            <h2 className="font-display text-4xl md:text-6xl font-bold text-primary-foreground mb-4 tracking-tight">
+              Ready to level up?
+            </h2>
+            <p className="text-primary-foreground/90 text-lg mb-8 max-w-xl mx-auto">
+              Join thousands of students and faculty already learning smarter.
+            </p>
+            <div className="flex flex-wrap justify-center gap-3">
+              <Button size="lg" onClick={() => navigate("/auth")} className="bg-background text-foreground hover:bg-background/90 h-12 px-7 text-base font-semibold gap-2 shadow-pop">
+                Create account <ArrowRight className="h-4 w-4" />
+              </Button>
+              <Button size="lg" variant="outline" onClick={() => navigate("/auth")} className="border-2 border-background bg-transparent text-primary-foreground hover:bg-background hover:text-foreground h-12 px-7 text-base font-semibold">
+                Sign in
               </Button>
             </div>
           </div>
-        </section>
-      </main>
+        </div>
+      </section>
 
-      <footer className="border-t border-border/50 bg-background">
-        <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-muted-foreground">
+      {/* Footer */}
+      <footer className="border-t-2 border-foreground/10 px-6 py-10">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded bg-primary/10 flex items-center justify-center">
-              <GraduationCap className="h-3 w-3 text-primary"/>
+            <div className="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center">
+              <GraduationCap className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span>Campus Connect</span>
+            <span className="font-display font-bold">Campus Connect</span>
           </div>
-          <span>© 2025 Campus Connect. All rights reserved.</span>
+          <p className="text-sm text-muted-foreground">© 2025 Campus Connect. Built for the next generation of learners.</p>
         </div>
       </footer>
-    </div>);
+    </div>
+  );
 };
+
 export default Index;
