@@ -173,13 +173,14 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Stats strip */}
-      <section className="relative px-6 py-12 border-y-2 border-foreground/10 bg-foreground text-background">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
-          {stats.map((s, i) => (
-            <div key={i} className="text-center">
-              <div className="font-display text-4xl md:text-5xl font-bold text-gradient mb-1">{s.v}</div>
-              <div className="text-xs uppercase tracking-widest opacity-70">{s.l}</div>
+      {/* Trust strip */}
+      <section className="relative px-6 py-10 border-y-2 border-foreground/10 bg-foreground text-background">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-4 md:gap-8">
+          <span className="text-xs uppercase tracking-widest opacity-60 font-semibold w-full md:w-auto text-center">Trusted capabilities</span>
+          {partners.map((p, i) => (
+            <div key={i} className="flex items-center gap-2 px-4 py-2 rounded-full border border-background/20 bg-background/10 backdrop-blur">
+              <CheckCircle className="h-4 w-4 text-accent" />
+              <span className="text-sm font-medium">{p}</span>
             </div>
           ))}
         </div>
