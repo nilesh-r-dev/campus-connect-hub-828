@@ -3,184 +3,335 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, FileText, Video, MessageSquare, FolderOpen, Award, Briefcase, ClipboardList, FileQuestion, Newspaper, Sparkles } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import {
+  BookOpen, FileText, Video, MessageSquare, FolderOpen, Award,
+  ClipboardList, Briefcase, FileQuestion, Newspaper, Sparkles,
+  Clock, TrendingUp, CheckCircle2, AlertCircle, ArrowRight, Zap
+} from "lucide-react";
 import { ChatbotWidget } from "@/components/ChatbotWidget";
 import { DashboardLayout } from "@/components/DashboardLayout";
+
 const StudentDashboard = () => {
-    const [loading, setLoading] = useState(true);
-    const [profile, setProfile] = useState(null);
-    const [enrolledSubjects, setEnrolledSubjects] = useState([]);
-    const navigate = useNavigate();
-    useEffect(() => {
-        const checkAuth = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) {
-                navigate("/auth");
-                return;
-            }
-            const { data: profileData } = await supabase
-                .from("profiles")
-                .select("*")
-                .eq("user_id", session.user.id)
-                .single();
-            const { data: roleData } = await supabase
-                .from("user_roles")
-                .select("role")
-                .eq("user_id", session.user.id)
-                .single();
-            if (roleData?.role !== "student") {
-                navigate(`/${roleData?.role}-dashboard`);
-                return;
-            }
-            setProfile(profileData);
-            if (profileData) {
-                const { data: enrollments } = await supabase
-                    .from("enrollments")
-                    .select("*, subjects(*, profiles!subjects_faculty_id_fkey(full_name))")
-                    .eq("student_id", profileData.id);
-                setEnrolledSubjects(enrollments?.map(e => e.subjects) || []);
-            }
-            setLoading(false);
-        };
-        checkAuth();
-    }, [navigate]);
-    if (loading) {
-        return (<div className="min-h-screen flex items-center justify-center">
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState(null);
+  const [enrolledSubjects, setEnrolledSubjects] = useState([]);
+  const [pendingAssignments, setPendingAssignments] = useState([]);
+  const [recentSubmissions, setRecentSubmissions] = useState([]);
+  const [stats, setStats] = useState({ subjects: 0, pending: 0, completed: 0, videos: 0 });
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const loadDashboard = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { navigate("/auth"); return; }
+
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .single();
+
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id)
+        .single();
+
+      if (roleData?.role !== "student") {
+        navigate(`/${roleData?.role === "admin" ? "student" : roleData?.role}-dashboard`);
+        return;
+      }
+
+      setProfile(profileData);
+
+      if (profileData) {
+        // Enrolled subjects
+        const { data: enrollments } = await supabase
+          .from("enrollments")
+          .select("*, subjects(*, profiles!subjects_faculty_id_fkey(full_name))")
+          .eq("student_id", profileData.id);
+        const subjects = enrollments?.map(e => e.subjects) || [];
+        setEnrolledSubjects(subjects);
+
+        // Assignments for enrolled subjects
+        const subjectIds = subjects.map(s => s.id);
+        if (subjectIds.length > 0) {
+          const { data: assignments } = await supabase
+            .from("assignments")
+            .select("*, subjects(title)")
+            .in("subject_id", subjectIds)
+            .order("created_at", { ascending: false });
+
+          // Check which assignments have submissions
+          const { data: submissions } = await supabase
+            .from("submissions")
+            .select("assignment_id, status, created_at")
+            .eq("student_id", profileData.id);
+
+          const submittedIds = new Set((submissions || []).map(s => s.assignment_id));
+          const pending = (assignments || []).filter(a => !submittedIds.has(a.id));
+          setPendingAssignments(pending.slice(0, 3));
+          setRecentSubmissions((submissions || []).slice(0, 3));
+
+          setStats({
+            subjects: subjects.length,
+            pending: pending.length,
+            completed: (submissions || []).filter(s => s.status === "graded").length,
+            videos: 0,
+          });
+        } else {
+          setStats({ subjects: 0, pending: 0, completed: 0, videos: 0 });
+        }
+      }
+      setLoading(false);
+    };
+    loadDashboard();
+  }, [navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="relative mx-auto w-16 h-16">
             <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/20 border-t-primary"></div>
-            <div className="absolute inset-2 animate-spin rounded-full border-4 border-secondary/20 border-t-secondary" style={{ animationDirection: 'reverse', animationDuration: '0.8s' }}></div>
           </div>
           <p className="text-muted-foreground animate-pulse">Loading your dashboard...</p>
         </div>
-      </div>);
-    }
-    const quickAccessCards = [
-        { icon: BookOpen, title: "My Subjects", desc: "Browse & enroll", color: "primary", action: () => navigate("/subjects"), label: "View", variant: "default" },
-        { icon: Video, title: "Videos", desc: "Watch lectures", color: "secondary", action: () => navigate("/videos"), label: "Watch", variant: "secondary" },
-        { icon: FileText, title: "Assignments", desc: "Submit work", color: "primary", action: () => navigate("/assignments"), label: "View", variant: "outline" },
-        { icon: Award, title: "Grades", desc: "Track performance", color: "secondary", action: () => navigate("/grades"), label: "View", variant: "secondary" },
-        { icon: FolderOpen, title: "Documents", desc: "Manage files", color: "primary", action: () => navigate("/documents"), label: "Manage", variant: "outline" },
-        { icon: MessageSquare, title: "Forum", desc: "Discussions", color: "secondary", action: () => navigate("/forum"), label: "Join", variant: "secondary" },
-        { icon: Newspaper, title: "Career News", desc: "Opportunities", color: "accent", action: () => navigate("/career-news"), label: "Browse", variant: "outline" },
-    ];
-    const aiCards = [
-        { icon: ClipboardList, title: "Exam Prep", desc: "Study strategies", colorClass: "from-green-500/10 to-teal-500/10 border-green-500/30", iconBg: "bg-green-500/20", iconColor: "text-green-600", btnClass: "border-green-500 text-green-600 hover:bg-green-500 hover:text-white", action: () => navigate("/exam-prep-chat"), label: "Prepare" },
-        { icon: Briefcase, title: "Career Guide", desc: "Plan your future", colorClass: "from-orange-500/10 to-amber-500/10 border-orange-500/30", iconBg: "bg-orange-500/20", iconColor: "text-orange-600", btnClass: "border-orange-500 text-orange-600 hover:bg-orange-500 hover:text-white", action: () => navigate("/career-guidance-chat"), label: "Explore" },
-        { icon: FileQuestion, title: "PYQ Helper", desc: "Past papers", colorClass: "from-pink-500/10 to-rose-500/10 border-pink-500/30", iconBg: "bg-pink-500/20", iconColor: "text-pink-600", btnClass: "border-pink-500 text-pink-600 hover:bg-pink-500 hover:text-white", action: () => navigate("/pyq-chat"), label: "Analyze" },
-    ];
-    return (<DashboardLayout userRole="student">
-      <div className="p-6 bg-gradient-to-br from-primary/5 via-background to-secondary/5 min-h-full relative overflow-hidden">
-        {/* Animated background blobs */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-primary/8 rounded-full blur-3xl animate-pulse"/>
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/8 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }}/>
-          <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-accent/5 rounded-full blur-3xl animate-bounce-slow" style={{ animationDelay: "2s" }}/>
+      </div>
+    );
+  }
+
+  const quickCards = [
+    { icon: BookOpen, title: "Subjects", desc: "Browse & enroll", color: "bg-primary/10 text-primary", path: "/subjects" },
+    { icon: Video, title: "Videos", desc: "Watch lectures", color: "bg-secondary/10 text-secondary", path: "/videos" },
+    { icon: FileText, title: "Assignments", desc: "Submit work", color: "bg-primary/10 text-primary", path: "/assignments" },
+    { icon: Award, title: "Grades", desc: "Track performance", color: "bg-secondary/10 text-secondary", path: "/grades" },
+    { icon: FolderOpen, title: "Documents", desc: "Manage files", color: "bg-accent/10 text-accent-foreground", path: "/documents" },
+    { icon: MessageSquare, title: "Forum", desc: "Discussions", color: "bg-primary/10 text-primary", path: "/forum" },
+  ];
+
+  const aiTools = [
+    { icon: ClipboardList, title: "Exam Prep", desc: "AI study strategies", color: "border-green-500/30", iconBg: "bg-green-500/15", iconColor: "text-green-600", path: "/exam-prep-chat" },
+    { icon: Briefcase, title: "Career Guide", desc: "Plan your future", color: "border-orange-500/30", iconBg: "bg-orange-500/15", iconColor: "text-orange-600", path: "/career-guidance-chat" },
+    { icon: FileQuestion, title: "PYQ Helper", desc: "Past paper analysis", color: "border-pink-500/30", iconBg: "bg-pink-500/15", iconColor: "text-pink-600", path: "/pyq-chat" },
+    { icon: Newspaper, title: "Career News", desc: "Opportunities", color: "border-cyan-500/30", iconBg: "bg-cyan-500/15", iconColor: "text-cyan-600", path: "/career-news" },
+  ];
+
+  return (
+    <DashboardLayout userRole="student">
+      <div className="p-6 lg:p-8 min-h-full">
+        {/* Welcome Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-2xl gradient-primary flex items-center justify-center shadow-elegant">
+              <Sparkles className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <div>
+              <h1 className="text-2xl lg:text-3xl font-display font-bold tracking-tight">
+                Welcome back, {profile?.full_name || "Student"}
+              </h1>
+              <p className="text-sm text-muted-foreground">Here's what's happening in your learning journey</p>
+            </div>
+          </div>
         </div>
 
-        <div className="relative z-10">
-          {/* Welcome Header */}
-          <div className="mb-10 animate-slide-right">
-            <div className="flex items-center gap-3 mb-2">
-              <Sparkles className="h-6 w-6 text-primary animate-spin-slow"/>
-              <h2 className="text-3xl md:text-4xl font-black" style={{
-            background: 'linear-gradient(135deg, hsl(262 83% 58%), hsl(199 89% 48%), hsl(280 70% 60%))',
-            backgroundSize: '200% 200%',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            animation: 'gradient-x 3s ease infinite',
-        }}>
-                Welcome back, {profile?.full_name}!
-              </h2>
-            </div>
-            <p className="text-muted-foreground text-lg ml-9">Access your courses, assignments, and AI resources</p>
-          </div>
-
-          {/* Enrolled Courses */}
-          {enrolledSubjects.length > 0 && (<div className="mb-10 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <span className="text-primary">My Courses</span>
-                <span className="h-0.5 flex-1 bg-gradient-to-r from-primary/50 to-transparent rounded"></span>
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {enrolledSubjects.map((subject, i) => (<Card key={subject.id} className="group hover:shadow-2xl hover:-translate-y-2 transition-all duration-400 cursor-pointer border-primary/20 relative overflow-hidden animate-pop-in" style={{ animationDelay: `${i * 0.1}s` }} onClick={() => navigate(`/course/${subject.id}`)}>
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"/>
-                    <div className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-primary to-secondary w-0 group-hover:w-full transition-all duration-500"/>
-                    <CardHeader className="pb-2 relative">
-                      <div className="bg-primary/10 rounded-full p-2 w-fit mb-2 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
-                        <BookOpen className="h-5 w-5 text-primary"/>
-                      </div>
-                      <CardTitle className="text-lg group-hover:text-primary transition-colors duration-300">{subject.title}</CardTitle>
-                      <CardDescription className="text-sm">
-                        By {subject.profiles?.full_name || "Unknown"}
-                      </CardDescription>
-                    </CardHeader>
-                  </Card>))}
+        {/* Stats Overview */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <Card className="border-2 border-primary/10 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+            <CardHeader className="pb-2">
+              <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
+                <BookOpen className="h-3.5 w-3.5" /> Subjects
               </div>
-            </div>)}
+              <CardTitle className="text-3xl font-display font-bold">{stats.subjects}</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="text-xs text-muted-foreground">Enrolled courses</p>
+            </CardContent>
+          </Card>
+          <Card className="border-2 border-secondary/10 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-secondary/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+            <CardHeader className="pb-2">
+              <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
+                <AlertCircle className="h-3.5 w-3.5" /> Pending
+              </div>
+              <CardTitle className="text-3xl font-display font-bold">{stats.pending}</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="text-xs text-muted-foreground">Assignments due</p>
+            </CardContent>
+          </Card>
+          <Card className="border-2 border-green-500/10 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-green-500/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+            <CardHeader className="pb-2">
+              <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
+                <CheckCircle2 className="h-3.5 w-3.5" /> Completed
+              </div>
+              <CardTitle className="text-3xl font-display font-bold">{stats.completed}</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="text-xs text-muted-foreground">Graded submissions</p>
+            </CardContent>
+          </Card>
+          <Card className="border-2 border-accent/20 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-accent/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+            <CardHeader className="pb-2">
+              <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider font-semibold">
+                <TrendingUp className="h-3.5 w-3.5" /> Progress
+              </div>
+              <CardTitle className="text-3xl font-display font-bold">
+                {stats.subjects > 0 ? Math.round((stats.completed / (stats.pending + stats.completed || 1)) * 100) : 0}%
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <Progress value={stats.subjects > 0 ? (stats.completed / (stats.pending + stats.completed || 1)) * 100 : 0} className="h-1.5" />
+            </CardContent>
+          </Card>
+        </div>
 
-          {/* Quick Access */}
-          <h3 className="text-xl font-semibold mb-4 flex items-center gap-2 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            <span className="text-secondary">Quick Access</span>
-            <span className="h-0.5 flex-1 bg-gradient-to-r from-secondary/50 to-transparent rounded"></span>
-          </h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-10">
-            {quickAccessCards.map((card, i) => (<Card key={i} className={`group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-pointer border-${card.color}/20 relative overflow-hidden animate-fade-in`} style={{ animationDelay: `${0.2 + i * 0.07}s` }}>
-                <div className="absolute inset-0 bg-gradient-to-br from-transparent to-transparent group-hover:from-primary/3 group-hover:to-secondary/3 transition-all duration-500"/>
-                <div className={`absolute top-0 right-0 w-16 h-16 bg-${card.color}/5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500`}/>
-                <CardHeader className="pb-2 relative">
-                  <div className={`bg-${card.color}/10 rounded-full p-2 w-fit mb-2 group-hover:scale-125 group-hover:bg-${card.color}/20 transition-all duration-300`}>
-                    <card.icon className={`h-5 w-5 text-${card.color}`}/>
-                  </div>
-                  <CardTitle className="text-base group-hover:text-primary transition-colors duration-300">{card.title}</CardTitle>
-                  <CardDescription className="text-sm">{card.desc}</CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0 relative">
-                  <Button size="sm" variant={card.variant} className="w-full hover:scale-105 transition-transform duration-200" onClick={card.action}>
-                    {card.label}
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Main Column */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* My Courses */}
+            {enrolledSubjects.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-display font-bold text-lg flex items-center gap-2">
+                    <BookOpen className="h-4 w-4 text-primary" /> My Courses
+                  </h3>
+                  <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={() => navigate("/subjects")}>
+                    View all <ArrowRight className="h-3 w-3" />
                   </Button>
-                </CardContent>
-              </Card>))}
+                </div>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {enrolledSubjects.map((subject) => (
+                    <Card
+                      key={subject.id}
+                      className="group cursor-pointer border-2 border-foreground/10 hover:border-primary/30 hover:shadow-card transition-all duration-300"
+                      onClick={() => navigate(`/course/${subject.id}`)}
+                    >
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between">
+                          <div className={`w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                            <BookOpen className="h-4 w-4 text-primary" />
+                          </div>
+                          <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                            Active
+                          </span>
+                        </div>
+                        <CardTitle className="text-base mt-2 group-hover:text-primary transition-colors">{subject.title}</CardTitle>
+                        <CardDescription className="text-xs">By {subject.profiles?.full_name || "Faculty"}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Clock className="h-3 w-3" />
+                          <span>In progress</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Quick Access */}
+            <div>
+              <h3 className="font-display font-bold text-lg flex items-center gap-2 mb-4">
+                <Zap className="h-4 w-4 text-secondary" /> Quick Access
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {quickCards.map((card, i) => (
+                  <Card
+                    key={i}
+                    className="group cursor-pointer border-2 border-foreground/10 hover:shadow-card hover:-translate-y-1 transition-all duration-200"
+                    onClick={() => navigate(card.path)}
+                  >
+                    <CardHeader className="pb-3">
+                      <div className={`w-8 h-8 rounded-lg ${card.color} flex items-center justify-center mb-2 group-hover:scale-110 transition-transform`}>
+                        <card.icon className="h-4 w-4" />
+                      </div>
+                      <CardTitle className="text-sm">{card.title}</CardTitle>
+                      <CardDescription className="text-xs">{card.desc}</CardDescription>
+                    </CardHeader>
+                  </Card>
+                ))}
+              </div>
+            </div>
           </div>
 
-          {/* AI Assistants */}
-          <h3 className="text-xl font-semibold mb-4 flex items-center gap-2 animate-fade-in" style={{ animationDelay: "0.5s" }}>
-            <span style={{
-            background: 'linear-gradient(135deg, hsl(280 70% 60%), hsl(320 70% 60%))',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-        }}>
-              AI Assistants
-            </span>
-            <Sparkles className="h-5 w-5 text-purple-500 animate-spin-slow"/>
-            <span className="h-0.5 flex-1 bg-gradient-to-r from-purple-500/50 to-transparent rounded"></span>
-          </h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {aiCards.map((card, i) => (<Card key={i} className={`group hover:shadow-xl hover:-translate-y-2 transition-all duration-300 cursor-pointer bg-gradient-to-br ${card.colorClass} relative overflow-hidden animate-pop-in`} style={{ animationDelay: `${0.5 + i * 0.1}s` }}>
-                {/* Animated glow ring */}
-                <div className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ boxShadow: 'inset 0 0 30px rgba(139, 92, 246, 0.1)' }}/>
-                <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full opacity-20 group-hover:opacity-40 group-hover:scale-150 transition-all duration-500" style={{ background: 'radial-gradient(circle, currentColor, transparent)' }}/>
-                <CardHeader className="pb-2 relative">
-                  <div className={`${card.iconBg} rounded-full p-2 w-fit mb-2 group-hover:scale-125 group-hover:rotate-12 transition-all duration-300`}>
-                    <card.icon className={`h-5 w-5 ${card.iconColor}`}/>
+          {/* Side Column */}
+          <div className="space-y-6">
+            {/* Pending Assignments */}
+            <Card className="border-2 border-foreground/10">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-display font-bold flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-secondary" /> Pending Work
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0 space-y-3">
+                {pendingAssignments.length > 0 ? pendingAssignments.map((a) => (
+                  <div
+                    key={a.id}
+                    className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 hover:bg-muted cursor-pointer transition-colors"
+                    onClick={() => navigate(`/assignments`)}
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0">
+                      <FileText className="h-4 w-4 text-secondary" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{a.title}</p>
+                      <p className="text-xs text-muted-foreground">{a.subjects?.title || "Subject"}</p>
+                    </div>
                   </div>
-                  <CardTitle className="text-base">{card.title}</CardTitle>
-                  <CardDescription className="text-sm">{card.desc}</CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0 relative">
-                  <Button size="sm" variant="outline" className={`w-full ${card.btnClass} hover:scale-105 transition-all duration-200`} onClick={card.action}>
-                    {card.label}
+                )) : (
+                  <div className="text-center py-6 text-muted-foreground text-sm">
+                    <CheckCircle2 className="h-8 w-8 mx-auto mb-2 opacity-40" />
+                    All caught up!
+                  </div>
+                )}
+                {pendingAssignments.length > 0 && (
+                  <Button variant="ghost" size="sm" className="w-full text-xs" onClick={() => navigate("/assignments")}>
+                    View all assignments <ArrowRight className="h-3 w-3 ml-1" />
                   </Button>
-                </CardContent>
-              </Card>))}
+                )}
+              </CardContent>
+            </Card>
+
+            {/* AI Assistants */}
+            <div>
+              <h3 className="font-display font-bold text-sm flex items-center gap-2 mb-3">
+                <Sparkles className="h-4 w-4 text-purple-500" /> AI Tools
+              </h3>
+              <div className="space-y-2">
+                {aiTools.map((tool, i) => (
+                  <Card
+                    key={i}
+                    className={`group cursor-pointer border ${tool.color} hover:shadow-card transition-all duration-200`}
+                    onClick={() => navigate(tool.path)}
+                  >
+                    <CardHeader className="py-3 px-4">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-lg ${tool.iconBg} flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform`}>
+                          <tool.icon className={`h-4 w-4 ${tool.iconColor}`} />
+                        </div>
+                        <div>
+                          <CardTitle className="text-sm">{tool.title}</CardTitle>
+                          <CardDescription className="text-xs">{tool.desc}</CardDescription>
+                        </div>
+                        <ArrowRight className="h-4 w-4 ml-auto text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                      </div>
+                    </CardHeader>
+                  </Card>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
       <ChatbotWidget />
-    </DashboardLayout>);
+    </DashboardLayout>
+  );
 };
+
 export default StudentDashboard;
