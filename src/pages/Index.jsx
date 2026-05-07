@@ -40,11 +40,11 @@ const Index = () => {
     { n: "03", title: "Learn & teach", desc: "Lectures, assignments, AI tools — all in one place." },
   ];
 
-  const stats = [
-    { v: "10k+", l: "Active Students" },
-    { v: "500+", l: "Faculty" },
-    { v: "120+", l: "Colleges" },
-    { v: "4.9", l: "Avg. Rating" },
+  const partners = [
+    "AI-Powered Learning",
+    "Real-time Collaboration",
+    "Secure Cloud Storage",
+    "Career Guidance",
   ];
 
   const testimonials = [
