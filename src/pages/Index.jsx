@@ -47,11 +47,15 @@ const Index = () => {
     "Career Guidance",
   ];
 
-  const testimonials = [
-    { name: "Priya S.", role: "CS Student", quote: "The AI tutor saved me before finals. PYQ helper is gold." },
-    { name: "Dr. Mehta", role: "Faculty, ECE", quote: "Managing assignments and quizzes finally feels effortless." },
-    { name: "Arjun K.", role: "Engineering Student", quote: "Career news + guidance got me my first internship." },
+  const included = [
+    { title: "AI Tutor & Exam Prep", desc: "Ask questions, get explanations, and analyse previous year question papers." },
+    { title: "Courses & Lectures", desc: "Faculty publish subjects, video lectures and notes; students enrol and learn." },
+    { title: "Assignments & Quizzes", desc: "Create, submit, grade and track work with due dates and feedback." },
+    { title: "Certificates", desc: "Faculty issue completion certificates students can download anytime." },
+    { title: "Discussion Forum", desc: "Subject-wise threads so students and faculty can discuss in context." },
+    { title: "Career News & Guidance", desc: "Curated opportunities plus an AI assistant for career questions." },
   ];
+
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
