@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   GraduationCap, BookOpen, Users, Video, Shield, Zap, ArrowRight, CheckCircle,
-  Sparkles, Brain, MessageSquare, Award, Star, ChevronRight, Newspaper, FileQuestion
+  Sparkles, Brain, MessageSquare, Award, ChevronRight, Newspaper, FileQuestion
 } from "lucide-react";
 
 const Index = () => {
@@ -47,11 +47,15 @@ const Index = () => {
     "Career Guidance",
   ];
 
-  const testimonials = [
-    { name: "Priya S.", role: "CS Student", quote: "The AI tutor saved me before finals. PYQ helper is gold." },
-    { name: "Dr. Mehta", role: "Faculty, ECE", quote: "Managing assignments and quizzes finally feels effortless." },
-    { name: "Arjun K.", role: "Engineering Student", quote: "Career news + guidance got me my first internship." },
+  const included = [
+    { title: "AI Tutor & Exam Prep", desc: "Ask questions, get explanations, and analyse previous year question papers." },
+    { title: "Courses & Lectures", desc: "Faculty publish subjects, video lectures and notes; students enrol and learn." },
+    { title: "Assignments & Quizzes", desc: "Create, submit, grade and track work with due dates and feedback." },
+    { title: "Certificates", desc: "Faculty issue completion certificates students can download anytime." },
+    { title: "Discussion Forum", desc: "Subject-wise threads so students and faculty can discuss in context." },
+    { title: "Career News & Guidance", desc: "Curated opportunities plus an AI assistant for career questions." },
   ];
+
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -67,7 +71,7 @@ const Index = () => {
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
             <a href="#features" className="hover:text-primary transition-colors">Features</a>
             <a href="#how" className="hover:text-primary transition-colors">How it works</a>
-            <a href="#testimonials" className="hover:text-primary transition-colors">Reviews</a>
+            <a href="#included" className="hover:text-primary transition-colors">What's included</a>
           </nav>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => navigate("/auth")}>Sign in</Button>
@@ -109,21 +113,12 @@ const Index = () => {
               </Button>
             </div>
 
-            <div className="flex items-center gap-6">
-              <div className="flex -space-x-2">
-                {["primary", "secondary", "accent", "primary"].map((c, i) => (
-                  <div key={i} className={`w-8 h-8 rounded-full border-2 border-background bg-${c} flex items-center justify-center text-xs font-bold text-${c}-foreground`}>
-                    {String.fromCharCode(65 + i)}
-                  </div>
-                ))}
-              </div>
-              <div className="text-sm">
-                <div className="flex items-center gap-0.5">
-                  {[...Array(5)].map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-accent text-accent" />)}
-                </div>
-                <p className="text-muted-foreground text-xs mt-0.5">Loved by 10k+ students</p>
-              </div>
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+              <span>Free to start</span>
+              <span>Role-based student & faculty access</span>
+              <span>Secure cloud storage</span>
             </div>
+
           </div>
 
           {/* Hero visual */}
@@ -230,36 +225,26 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section id="testimonials" className="px-6 py-24 max-w-7xl mx-auto">
+      {/* What's included */}
+      <section id="included" className="px-6 py-24 max-w-7xl mx-auto">
         <div className="text-center max-w-2xl mx-auto mb-14">
-          <span className="inline-block px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest mb-4 shadow-pop">Loved by campus</span>
-          <h2 className="font-display text-4xl md:text-5xl font-bold tracking-tight">Real results, real students.</h2>
+          <span className="inline-block px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest mb-4 shadow-pop">What's included</span>
+          <h2 className="font-display text-4xl md:text-5xl font-bold tracking-tight">Everything built into the platform.</h2>
         </div>
 
         <div className="grid md:grid-cols-3 gap-5">
-          {testimonials.map((t, i) => {
+          {included.map((t, i) => {
             const tints = ["bg-primary/10", "bg-secondary/10", "bg-accent/15"];
             return (
-              <div key={i} className={`${tints[i]} rounded-3xl p-7 border-2 border-foreground/10`}>
-                <div className="flex gap-0.5 mb-4">
-                  {[...Array(5)].map((_, j) => <Star key={j} className="h-4 w-4 fill-foreground text-foreground" />)}
-                </div>
-                <p className="text-lg font-medium leading-snug mb-6">"{t.quote}"</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center text-primary-foreground font-bold">
-                    {t.name[0]}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-sm">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.role}</p>
-                  </div>
-                </div>
+              <div key={i} className={`${tints[i % 3]} rounded-3xl p-7 border-2 border-foreground/10`}>
+                <p className="font-display font-bold text-lg mb-2">{t.title}</p>
+                <p className="text-sm text-muted-foreground leading-relaxed">{t.desc}</p>
               </div>
             );
           })}
         </div>
       </section>
+
 
       {/* CTA */}
       <section className="px-6 py-20">
