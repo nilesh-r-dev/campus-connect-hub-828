@@ -71,7 +71,7 @@ const Index = () => {
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
             <a href="#features" className="hover:text-primary transition-colors">Features</a>
             <a href="#how" className="hover:text-primary transition-colors">How it works</a>
-            <a href="#testimonials" className="hover:text-primary transition-colors">Reviews</a>
+            <a href="#included" className="hover:text-primary transition-colors">What's included</a>
           </nav>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => navigate("/auth")}>Sign in</Button>
