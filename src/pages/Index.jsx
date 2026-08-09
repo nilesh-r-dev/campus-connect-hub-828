@@ -113,21 +113,12 @@ const Index = () => {
               </Button>
             </div>
 
-            <div className="flex items-center gap-6">
-              <div className="flex -space-x-2">
-                {["primary", "secondary", "accent", "primary"].map((c, i) => (
-                  <div key={i} className={`w-8 h-8 rounded-full border-2 border-background bg-${c} flex items-center justify-center text-xs font-bold text-${c}-foreground`}>
-                    {String.fromCharCode(65 + i)}
-                  </div>
-                ))}
-              </div>
-              <div className="text-sm">
-                <div className="flex items-center gap-0.5">
-                  {[...Array(5)].map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-accent text-accent" />)}
-                </div>
-                <p className="text-muted-foreground text-xs mt-0.5">Loved by 10k+ students</p>
-              </div>
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+              <span>Free to start</span>
+              <span>Role-based student & faculty access</span>
+              <span>Secure cloud storage</span>
             </div>
+
           </div>
 
           {/* Hero visual */}
