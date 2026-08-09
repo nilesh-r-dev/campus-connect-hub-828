@@ -230,36 +230,26 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section id="testimonials" className="px-6 py-24 max-w-7xl mx-auto">
+      {/* What's included */}
+      <section id="included" className="px-6 py-24 max-w-7xl mx-auto">
         <div className="text-center max-w-2xl mx-auto mb-14">
-          <span className="inline-block px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest mb-4 shadow-pop">Loved by campus</span>
-          <h2 className="font-display text-4xl md:text-5xl font-bold tracking-tight">Real results, real students.</h2>
+          <span className="inline-block px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest mb-4 shadow-pop">What's included</span>
+          <h2 className="font-display text-4xl md:text-5xl font-bold tracking-tight">Everything built into the platform.</h2>
         </div>
 
         <div className="grid md:grid-cols-3 gap-5">
-          {testimonials.map((t, i) => {
+          {included.map((t, i) => {
             const tints = ["bg-primary/10", "bg-secondary/10", "bg-accent/15"];
             return (
-              <div key={i} className={`${tints[i]} rounded-3xl p-7 border-2 border-foreground/10`}>
-                <div className="flex gap-0.5 mb-4">
-                  {[...Array(5)].map((_, j) => <Star key={j} className="h-4 w-4 fill-foreground text-foreground" />)}
-                </div>
-                <p className="text-lg font-medium leading-snug mb-6">"{t.quote}"</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center text-primary-foreground font-bold">
-                    {t.name[0]}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-sm">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.role}</p>
-                  </div>
-                </div>
+              <div key={i} className={`${tints[i % 3]} rounded-3xl p-7 border-2 border-foreground/10`}>
+                <p className="font-display font-bold text-lg mb-2">{t.title}</p>
+                <p className="text-sm text-muted-foreground leading-relaxed">{t.desc}</p>
               </div>
             );
           })}
         </div>
       </section>
+
 
       {/* CTA */}
       <section className="px-6 py-20">
