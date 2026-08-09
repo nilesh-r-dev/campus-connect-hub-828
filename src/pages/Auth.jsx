@@ -24,18 +24,25 @@ const Auth = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const { toast } = useToast();
+    const redirectByRole = async (userId) => {
+        const { data: userRole } = await supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", userId)
+            .single();
+        const role = userRole?.role === "admin" ? "student" : (userRole?.role || "student");
+        navigate(`/${role}-dashboard`, { replace: true });
+    };
     useEffect(() => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            if (session?.user) {
+                setTimeout(() => redirectByRole(session.user.id), 0);
+            }
+        });
         const checkUser = async () => {
             const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                const { data: userRole } = await supabase
-                    .from("user_roles")
-                    .select("role")
-                    .eq("user_id", session.user.id)
-                    .single();
-                if (userRole) {
-                    navigate(`/${userRole.role}-dashboard`);
-                }
+            if (session?.user) {
+                redirectByRole(session.user.id);
             }
         };
         checkUser();
@@ -48,7 +55,9 @@ const Auth = () => {
                 setColleges(data);
         };
         fetchColleges();
+        return () => subscription.unsubscribe();
     }, [navigate]);
+
     const handleAuth = async (e) => {
         e.preventDefault();
         setLoading(true);
