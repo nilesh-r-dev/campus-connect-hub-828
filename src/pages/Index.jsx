@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   GraduationCap, BookOpen, Users, Video, Shield, Zap, ArrowRight, CheckCircle,
-  Sparkles, Brain, MessageSquare, Award, Star, ChevronRight, Newspaper, FileQuestion
+  Sparkles, Brain, MessageSquare, Award, ChevronRight, Newspaper, FileQuestion
 } from "lucide-react";
 
 const Index = () => {
